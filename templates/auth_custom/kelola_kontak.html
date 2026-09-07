@@ -1,0 +1,167 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6" 
+      x-data="{ 
+          modalPesan: false, 
+          detailNama: '', 
+          detailEmail: '', 
+          detailTelepon: '', 
+          detailSubjek: '', 
+          detailPesan: '', 
+          detailTanggal: '',
+          bukaModal(nama, email, telepon, subjek, pesan, tanggal) {
+              this.detailNama = nama;
+              this.detailEmail = email;
+              this.detailTelepon = telepon;
+              this.detailSubjek = subjek;
+              this.detailPesan = pesan;
+              this.detailTanggal = tanggal;
+              this.modalPesan = true;
+          },
+          tutupModal() {
+              this.modalPesan = false;
+          }
+      }">
+
+    <!-- HEADER CARD -->
+    <div class="bg-white rounded-2xl border border-gray-100 p-6 sm:p-8 shadow-sm">
+        <h1 class="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">Kelola Pesan Kontak</h1>
+        <p class="text-xs sm:text-sm text-gray-500 mt-1">
+            Daftar pesan dan masukan yang dikirimkan oleh pengunjung platform.
+        </p>
+    </div>
+
+    <!-- NOTIFIKASI SUKSES / ERROR -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="p-4 rounded-xl text-xs font-semibold {% if message.tags == 'success' %}bg-emerald-50 text-emerald-700 border border-emerald-200{% else %}bg-rose-50 text-rose-700 border border-rose-200{% endif %} flex justify-between items-center">
+                <span>{{ message }}</span>
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- TABEL PESAN KONTAK -->
+    <div class="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-50/70 border-b border-gray-100 text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                        <th class="py-4 px-6 text-center w-12">No</th>
+                        <th class="py-4 px-6">Pengirim</th>
+                        <th class="py-4 px-6">Email / Telepon</th>
+                        <th class="py-4 px-6">Subjek & Pesan</th>
+                        <th class="py-4 px-6">Tanggal Masuk</th>
+                        <th class="py-4 px-6 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs text-gray-700">
+                    {% for item in pesan_list %}
+                    <tr class="hover:bg-gray-50/50 transition-colors">
+                        <td class="py-4 px-6 text-center font-medium text-gray-400">{{ forloop.counter }}</td>
+                        <td class="py-4 px-6 font-bold text-gray-900">
+                            {{ item.nama }}
+                        </td>
+                        <td class="py-4 px-6 space-y-0.5">
+                            <div class="font-medium text-gray-800">{{ item.email }}</div>
+                            <div class="text-[11px] text-gray-400">{{ item.telepon|default:"-" }}</div>
+                        </td>
+                        <td class="py-4 px-6 max-w-xs">
+                            <div class="font-bold text-gray-900 truncate">{{ item.subjek }}</div>
+                            <div class="text-gray-500 truncate text-[11px]">{{ item.pesan }}</div>
+                        </td>
+                        <td class="py-4 px-6 font-medium text-gray-500 whitespace-nowrap">
+                            {{ item.created_at|date:"d M Y, H:i" }}
+                        </td>
+                        <td class="py-4 px-6 text-center whitespace-nowrap">
+                            <div class="flex items-center justify-center space-x-2">
+                                <!-- TOMBOL DETAIL PESAN -->
+                                <button 
+                                    type="button"
+                                    @click="bukaModal(
+                                        '{{ item.nama|escapejs }}', 
+                                        '{{ item.email|escapejs }}', 
+                                        '{{ item.telepon|default:"-"|escapejs }}', 
+                                        '{{ item.subjek|escapejs }}', 
+                                        '{{ item.pesan|escapejs }}', 
+                                        '{{ item.created_at|date:"d F Y H:i" }}'
+                                    )"
+                                    class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer" title="Baca Pesan">
+                                    👁️
+                                </button>
+
+                                <!-- TOMBOL HAPUS -->
+                                <form method="POST" action="{% url 'hapus_kontak' item.id %}" onsubmit="return confirm('Apakah Anda yakin ingin menghapus pesan ini?');" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer" title="Hapus Pesan">
+                                        🗑️
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="py-12 text-center text-gray-400 font-medium">
+                            Belum ada pesan kontak masuk.
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL POPUP BACA PESAN (FIXED CLICK & STACKING CONTEXT) -->
+    <template x-if="modalPesan">
+        <div class="fixed inset-0 z-[99999] flex items-center justify-center p-4">
+            <!-- BACKDROP OVERLAY -->
+            <div class="fixed inset-0 bg-black/50 backdrop-blur-sm" @click="tutupModal()"></div>
+
+            <!-- MODAL CARD CONTENT -->
+            <div class="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 space-y-4 z-10 border border-gray-100 pointer-events-auto">
+                
+                <!-- HEADER MODAL -->
+                <div class="flex justify-between items-start border-b border-gray-100 pb-3">
+                    <div>
+                        <h3 class="text-base font-bold text-gray-900" x-text="detailSubjek"></h3>
+                        <p class="text-xs text-gray-400" x-text="detailTanggal"></p>
+                    </div>
+                    <button 
+                        type="button"
+                        @click="tutupModal()" 
+                        class="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-1.5 rounded-lg text-lg font-bold transition-all cursor-pointer">
+                        ✕
+                    </button>
+                </div>
+
+                <!-- BODY MODAL -->
+                <div class="space-y-3 text-xs text-gray-700">
+                    <div class="bg-gray-50 p-3.5 rounded-xl space-y-1 border border-gray-100">
+                        <p><span class="font-bold text-gray-900">Pengirim:</span> <span x-text="detailNama"></span></p>
+                        <p><span class="font-bold text-gray-900">Email:</span> <span x-text="detailEmail"></span></p>
+                        <p><span class="font-bold text-gray-900">Telepon:</span> <span x-text="detailTelepon"></span></p>
+                    </div>
+
+                    <div>
+                        <p class="font-bold text-gray-900 mb-1">Isi Pesan:</p>
+                        <div class="bg-gray-50 p-4 rounded-xl border border-gray-100 whitespace-pre-wrap leading-relaxed text-gray-800 max-h-60 overflow-y-auto" x-text="detailPesan"></div>
+                    </div>
+                </div>
+
+                <!-- FOOTER MODAL -->
+                <div class="pt-2 flex justify-end">
+                    <button 
+                        type="button"
+                        @click="tutupModal()" 
+                        class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition-all cursor-pointer">
+                        Tutup
+                    </button>
+                </div>
+            </div>
+        </div>
+    </template>
+
+</main>
+{% endblock %}

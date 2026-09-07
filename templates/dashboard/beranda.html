@@ -1,0 +1,632 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Beranda - SIPHP Kabupaten Subang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet.js CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        [x-cloak] { display: none !important; }
+
+        /* Leaflet Map Custom Style */
+        #map {
+            width: 100%;
+            height: 260px;
+            border-radius: 0.75rem;
+            z-index: 1;
+        }
+        .leaflet-popup-content-wrapper {
+            border-radius: 12px;
+            padding: 4px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+        .leaflet-popup-content {
+            margin: 8px 12px;
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-100/70 text-gray-800 min-h-screen flex flex-col antialiased" x-data="{ mobileMenuOpen: false }">
+
+    <!-- Header / Navbar dengan Warna Gradasi Sesuai Foto Kedua -->
+    <header class="bg-gradient-to-r from-[#046a53] via-[#087860] to-[#0d7488] text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            
+            <a href="{% url 'beranda' %}" class="flex items-center space-x-3 group">
+                <div class="w-14 h-14 bg-white rounded-2xl p-1.5 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-200">
+                    <img src="{% static 'image/logo_siphp.JPEG' %}" alt="Logo SIPHP Subang" class="w-full h-full object-contain rounded-xl">
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold tracking-tight leading-none text-white">SIPHP</h1>
+                    <p class="text-xs text-emerald-100 font-medium mt-0.5">Kabupaten Subang</p>
+                </div>
+            </a>
+
+            <nav class="hidden md:flex space-x-8 text-sm font-semibold">
+                <a href="{% url 'beranda' %}" class="text-white border-b-2 border-white pb-0.5 font-bold">Beranda</a>
+                <a href="{% url 'komoditas' %}" class="text-emerald-100 hover:text-white transition">Komoditas</a>
+                <a href="{% url 'berita' %}" class="text-emerald-100 hover:text-white transition">Berita</a>
+                <a href="{% url 'layanan_teknis' %}" class="text-emerald-100 hover:text-white transition">Layanan Teknis</a>
+                <a href="{% url 'profil' %}" class="text-emerald-100 hover:text-white transition">Profil</a>
+                <a href="{% url 'kontak' %}" class="text-emerald-100 hover:text-white transition">Kontak</a>
+            </nav>
+
+            <div class="flex items-center space-x-3">
+                {% if user.is_authenticated %}
+                    <span class="hidden lg:inline-block text-xs font-medium text-emerald-100">
+                        Halo, <strong class="text-white">{{ user.username }}</strong>
+                    </span>
+                    <a href="{% url 'harga_komoditas' %}" class="px-4 py-2 text-xs font-semibold bg-emerald-950/40 hover:bg-emerald-950/60 text-white rounded-xl border border-emerald-400/30 transition shadow-sm">
+                        Kelola Harga
+                    </a>
+                    <form action="{% url 'logout' %}" method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition shadow-sm">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="px-4 py-2 text-xs font-semibold bg-emerald-950/40 hover:bg-emerald-950/60 text-white rounded-xl border border-emerald-400/30 flex items-center space-x-1.5 transition shadow-sm">
+                        <span>🔐</span>
+                        <span>Login Admin</span>
+                    </a>
+                {% endif %}
+
+                <button @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle Navigation Menu" class="md:hidden p-2 text-white hover:bg-emerald-800/50 rounded-lg focus:outline-none">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                        <path x-show="mobileMenuOpen" x-cloak stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+
+        <!-- Mobile Menu Nav -->
+        <div x-show="mobileMenuOpen" x-cloak x-transition class="md:hidden bg-[#046a53] px-6 py-4 space-y-3 text-sm font-semibold border-t border-emerald-700">
+            <a href="{% url 'beranda' %}" class="block text-white font-bold">Beranda</a>
+            <a href="{% url 'komoditas' %}" class="block text-emerald-100 hover:text-white transition">Komoditas</a>
+            <a href="{% url 'berita' %}" class="block text-emerald-100 hover:text-white transition">Berita</a>
+            <a href="{% url 'layanan_teknis' %}" class="block text-emerald-100 hover:text-white transition">Layanan Teknis</a>
+            <a href="{% url 'profil' %}" class="block text-emerald-100 hover:text-white transition">Profil</a>
+            <a href="{% url 'kontak' %}" class="block text-emerald-100 hover:text-white transition">Kontak</a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-6 py-6 space-y-6 w-full flex-grow">
+
+        <!-- Hero Section -->
+        <div class="relative rounded-2xl overflow-hidden border border-gray-200/80 bg-cover bg-center min-h-[220px] flex items-center justify-between p-8 md:p-10 shadow-sm" 
+             style="background-image: linear-gradient(to right, rgba(255,255,255,0.95) 45%, rgba(255,255,255,0.4)), url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1600&q=80');">
+            
+            <div class="max-w-xl space-y-2">
+                <span class="inline-block px-2.5 py-1 bg-emerald-100 text-[#046a53] text-[10px] font-bold uppercase tracking-wider rounded-md">
+                    Portal Pemantauan Pangan Resmi
+                </span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-gray-900 leading-tight">
+                    Sistem Informasi<br>
+                    dan Pemantauan Harga Pokok<br>
+                    <span class="text-[#046a53]">Kabupaten Subang</span>
+                </h2>
+                <p class="text-xs md:text-sm text-gray-600 font-medium">
+                    Informasi harga kebutuhan pokok secara real-time, akurat, dan terpercaya untuk masyarakat Kabupaten Subang.
+                </p>
+            </div>
+
+            <div class="hidden md:flex items-center space-x-4 bg-white/80 backdrop-blur-md px-4 py-3 rounded-xl border border-white/60 shadow-sm">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-emerald-700 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-inner">🏛️</div>
+                    <span class="text-[11px] font-extrabold text-emerald-900 leading-none">PEMKAB SUBANG<br><span class="text-[9px] font-normal text-gray-500">GOTONG ROYONG SUBANG JAWARA</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric Summary Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl font-bold flex-shrink-0">
+                    🛒
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Rata-Rata Harga Hari Ini</p>
+                    <div class="flex items-baseline space-x-1 mt-0.5">
+                        <h3 class="text-xl font-extrabold text-gray-900">Rp {{ avg_harga|floatformat:0 }}</h3>
+                        <span class="text-xs text-gray-500 font-medium">/kg</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dibandingkan kemarin</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-rose-500 text-white flex items-center justify-center text-xl font-bold flex-shrink-0">
+                    ↑
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Komoditas Naik</p>
+                    <div class="flex items-baseline space-x-1 mt-0.5">
+                        <h3 class="text-xl font-extrabold text-gray-900">{{ komoditas_naik }}</h3>
+                        <span class="text-xs text-gray-500 font-medium">Komoditas</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dibandingkan kemarin</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl font-bold flex-shrink-0">
+                    ↓
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Komoditas Turun</p>
+                    <div class="flex items-baseline space-x-1 mt-0.5">
+                        <h3 class="text-xl font-extrabold text-gray-900">{{ komoditas_turun }}</h3>
+                        <span class="text-xs text-gray-500 font-medium">Komoditas</span>
+                    </div>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Dibandingkan kemarin</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex items-center space-x-4">
+                <div class="w-12 h-12 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl font-bold flex-shrink-0">
+                    🕒
+                </div>
+                <div>
+                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Update Terakhir</p>
+                    <h3 class="text-base font-extrabold text-gray-900 mt-0.5">
+                        {% if tanggal_terbaru %}
+                            {{ tanggal_terbaru|date:"d F Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </h3>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Sumber: DKUPP Kab. Subang</p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section Peta & Tabel Harga -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <!-- Peta Sebaran Pasar Subang -->
+            <div class="lg:col-span-5 bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-4 flex flex-col justify-between h-full">
+                <div>
+                    <div class="flex justify-between items-center mb-3">
+                        <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide">Peta Sebaran Pasar Subang</h3>
+                        <select aria-label="Pilih Komoditas Peta" class="text-xs border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:border-[#046a53] font-medium text-gray-700 bg-white">
+                            <option>Beras Medium</option>
+                            <option>Cabai Merah</option>
+                            <option>Bawang Merah</option>
+                            <option>Minyak Goreng</option>
+                            <option>Daging Ayam</option>
+                        </select>
+                    </div>
+
+                    <!-- Leaflet Container -->
+                    <div class="w-full rounded-xl border border-gray-100 overflow-hidden relative shadow-inner">
+                        <div id="map"></div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 text-[10px] text-gray-500 font-semibold pt-3 border-t border-gray-100">
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 bg-emerald-500 rounded-full mr-1.5 flex-shrink-0"></span> Harga Turun</span>
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 bg-rose-500 rounded-full mr-1.5 flex-shrink-0"></span> Harga Naik</span>
+                    <span class="flex items-center"><span class="w-2.5 h-2.5 bg-gray-400 rounded-full mr-1.5 flex-shrink-0"></span> Stabil</span>
+                </div>
+            </div>
+
+            <!-- Tabel Harga Harian Dengan Pencarian Aktif -->
+            <div class="lg:col-span-7 bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-4" x-data="{ searchQuery: '' }">
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                    <div>
+                        <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide">Harga Harian Per Pasar</h3>
+                        <p class="text-[11px] text-gray-400">Menampilkan 5 data teratas. Gunakan pencarian untuk data spesifik.</p>
+                    </div>
+                    
+                    <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto">
+                        <div class="relative w-full sm:w-56">
+                            <input type="text" 
+                                   x-model="searchQuery" 
+                                   placeholder="Cari nama komoditas..." 
+                                   class="text-xs border border-gray-200 rounded-lg pl-3 pr-7 py-2 text-gray-700 focus:outline-none focus:border-[#046a53] w-full font-medium bg-gray-50/50 shadow-sm">
+                            <button @click="searchQuery = ''" 
+                                    x-show="searchQuery !== ''" 
+                                    class="absolute right-2 top-2 text-xs text-gray-400 hover:text-gray-600 font-bold">&times;</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b text-xs font-bold text-gray-700 bg-gray-50/60">
+                                <th class="py-3 px-4">Pasar / Komoditas</th>
+                                <th class="py-3 px-4">Satuan</th>
+                                <th class="py-3 px-4">
+                                    {% if tanggal_kemarin %}
+                                        {{ tanggal_kemarin|date:"d M Y" }}
+                                    {% else %}
+                                        Kemarin
+                                    {% endif %}
+                                </th>
+                                <th class="py-3 px-4">
+                                    {% if tanggal_terbaru %}
+                                        {{ tanggal_terbaru|date:"d M Y" }}
+                                    {% else %}
+                                        Hari Ini
+                                    {% endif %}
+                                </th>
+                                <th class="py-3 px-4 text-right">Perubahan</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y text-xs">
+                            {% for item in data_harga %}
+                            <tr class="hover:bg-emerald-50/30 transition-colors"
+                                x-show="searchQuery === '' ? {{ forloop.counter0 }} < 5 : '{{ item.nama_item|escapejs }}'.toLowerCase().includes(searchQuery.toLowerCase())">
+                                <td class="py-3 px-4 font-bold text-gray-800">{{ item.nama_item }}</td>
+                                <td class="py-3 px-4 text-gray-500">
+                                    <span class="px-2 py-0.5 bg-gray-100 rounded border border-gray-200 text-[10px]">
+                                        {{ item.satuan|default:"kg" }}
+                                    </span>
+                                </td>
+                                <td class="py-3 px-4 text-gray-600">
+                                    {% if item.harga_kemarin and item.harga_kemarin != "-" and item.harga_kemarin > 0 %}
+                                        Rp {{ item.harga_kemarin|intcomma }}
+                                    {% else %}
+                                        Rp 0
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4 font-bold text-gray-900">
+                                    {% if item.harga_hari_ini and item.harga_hari_ini != "-" %}
+                                        Rp {{ item.harga_hari_ini|intcomma }}
+                                    {% else %}
+                                        Rp 0
+                                    {% endif %}
+                                </td>
+                                <td class="py-3 px-4 text-right font-bold {% if item.perubahan > 0 %}text-rose-600{% elif item.perubahan < 0 %}text-emerald-600{% else %}text-gray-500{% endif %}">
+                                    {% if item.perubahan > 0 %}
+                                        +Rp {{ item.perubahan|intcomma }}
+                                    {% elif item.perubahan < 0 %}
+                                        -Rp {{ item.perubahan_abs|intcomma }}
+                                    {% else %}
+                                        0
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="5" class="py-6 text-center text-gray-400">Belum ada data harga.</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex justify-between items-center pt-2 border-t border-gray-100">
+                    <span class="text-[11px] text-gray-400">Ingin melihat seluruh daftar harga?</span>
+                    <a href="{% url 'komoditas' %}" class="text-xs font-bold text-[#046a53] hover:underline inline-flex items-center space-x-1">
+                        <span>Lihat Selengkapnya</span>
+                        <span>&rarr;</span>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Section Grafik Tren & Peringatan / Berita -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            
+            <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-3">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide">Grafik Tren Harga 7 Hari Terakhir</h3>
+                    <select aria-label="Rentang Waktu Grafik" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1 text-gray-600 focus:outline-none focus:border-[#046a53] bg-white">
+                        <option>7 Hari Terakhir</option>
+                        <option>30 Hari Terakhir</option>
+                    </select>
+                </div>
+
+                <div class="h-64 w-full pt-2">
+                    <canvas id="hargaChart"></canvas>
+                </div>
+            </div>
+
+            <div class="lg:col-span-6 space-y-6">
+                
+                <!-- Berita Terkini -->
+                <div class="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-3">
+                    <div class="flex items-center space-x-2 text-emerald-600">
+                        <span class="text-base">📰</span>
+                        <h3 class="text-xs font-extrabold uppercase tracking-wide text-gray-900">Berita Terkini</h3>
+                    </div>
+
+                    <div class="space-y-3 divide-y divide-gray-100">
+                        {% if berita_list %}
+                            {% for berita in berita_list %}
+                            <div class="flex items-center space-x-3 pt-2 group">
+                                <img src="{{ berita.gambar.url|default:'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80' }}" class="w-16 h-12 rounded-lg object-cover flex-shrink-0 group-hover:opacity-90 transition-opacity" alt="{{ berita.judul }}">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-[#046a53] transition-colors cursor-pointer">
+                                        <a href="#">{{ berita.judul }}</a>
+                                    </h4>
+                                    <span class="text-[10px] text-gray-400">{{ berita.tanggal_dibuat|date:"d F Y" }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="flex items-center space-x-3 pt-2 group cursor-pointer">
+                                <img src="https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80" class="w-16 h-12 rounded-lg object-cover flex-shrink-0 group-hover:opacity-90 transition-opacity" alt="Berita">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-[#046a53] transition-colors">
+                                        <a href="#">DKUPP Subang Pastikan Stok Beras Aman Hingga Akhir Tahun</a>
+                                    </h4>
+                                    <span class="text-[10px] text-gray-400">28 Juli 2026</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-3 pt-2 group cursor-pointer">
+                                <img src="https://images.unsplash.com/photo-1610832958506-aa56368176cf?auto=format&fit=crop&w=150&q=80" class="w-16 h-12 rounded-lg object-cover flex-shrink-0 group-hover:opacity-90 transition-opacity" alt="Berita Pasar">
+                                <div>
+                                    <h4 class="text-xs font-bold text-gray-900 line-clamp-1 group-hover:text-[#046a53] transition-colors">
+                                        <a href="#">Operasi Pasar Murah Digelar di Tiga Kecamatan Pekan Ini</a>
+                                    </h4>
+                                    <span class="text-[10px] text-gray-400">26 Juli 2026</span>
+                                </div>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="pt-2">
+                        <a href="{% url 'berita' %}" class="text-xs font-bold text-[#046a53] hover:underline inline-block">
+                            Lihat Semua Berita &rarr;
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Highlight Features Footer Banner -->
+        <div class="bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-[#046a53] text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">📊</div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-900">Data Akurat</h4>
+                    <p class="text-[10px] text-gray-500">Sumber resmi DKUPP Subang</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-[#046a53] text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">🔄</div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-900">Update Real-time</h4>
+                    <p class="text-[10px] text-gray-500">Informasi terbaru setiap hari</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-[#046a53] text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">📲</div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-900">Mudah Diakses</h4>
+                    <p class="text-[10px] text-gray-500">Kapan saja, di mana saja</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-[#046a53] text-white rounded-xl flex items-center justify-center font-bold text-lg flex-shrink-0">👁️</div>
+                <div>
+                    <h4 class="text-xs font-bold text-gray-900">Transparan</h4>
+                    <p class="text-[10px] text-gray-500">Terbuka untuk publik</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-gray-400 text-xs py-6 mt-10 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <p>&copy; 2026 SIPHP Kabupaten Subang. Dinas Koperasi, UMKM, Perdagangan, dan Perindustrian.</p>
+            <div class="flex space-x-4">
+                <a href="{% url 'beranda' %}" class="hover:text-white transition">Beranda</a>
+                <a href="{% url 'komoditas' %}" class="hover:text-white transition">Komoditas</a>
+                <a href="{% url 'kontak' %}" class="hover:text-white transition">Kontak</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JSON Scripting for Chart Data -->
+    {{ chart_labels|json_script:"labels-data" }}
+    {{ chart_datasets|json_script:"datasets-data" }}
+
+    <!-- Leaflet Map Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var map = L.map('map').setView([-6.5715, 107.7583], 10);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 18,
+            attribution: '© OpenStreetMap'
+        }).addTo(map);
+
+        var pasarList = [
+            { nama: "Pasar Pujasera Subang", lat: -6.5645, lng: 107.7592, komoditas: "Beras Medium", harga_sekarang: 14500, harga_sebelumnya: 15000, perubahan: -3.33, status: "turun" },
+            { nama: "Pasar Ciereng Subang", lat: -6.5821, lng: 107.7654, komoditas: "Beras Medium", harga_sekarang: 15200, harga_sebelumnya: 14800, perubahan: 2.70, status: "naik" },
+            { nama: "Pasar Kalijati", lat: -6.5256, lng: 107.6741, komoditas: "Beras Medium", harga_sekarang: 14500, harga_sebelumnya: 14500, perubahan: 0.00, status: "stabil" },
+            { nama: "Pasar Pamanukan", lat: -6.2825, lng: 107.8123, komoditas: "Beras Medium", harga_sekarang: 16000, harga_sebelumnya: 15500, perubahan: 3.23, status: "naik" },
+            { nama: "Pasar Sagalaherang", lat: -6.6631, lng: 107.6534, komoditas: "Beras Medium", harga_sekarang: 14200, harga_sebelumnya: 14500, perubahan: -2.07, status: "turun" }
+        ];
+
+        pasarList.forEach(function(pasar) {
+            var colorClass = pasar.status === 'naik' ? 'text-rose-600' : (pasar.status === 'turun' ? 'text-emerald-600' : 'text-gray-500');
+            var badgeText = pasar.status === 'naik' ? '↑ Naik' : (pasar.status === 'turun' ? '↓ Turun' : '• Stabil');
+            var badgeBg = pasar.status === 'naik' ? 'bg-rose-100 text-rose-700' : (pasar.status === 'turun' ? 'bg-emerald-100 text-emerald-700' : 'bg-gray-100 text-gray-600');
+
+            var marker = L.marker([pasar.lat, pasar.lng]).addTo(map);
+
+            var popupContent = `
+                <div class="text-xs space-y-1">
+                    <div class="flex items-center justify-between gap-2 border-b pb-1 mb-1">
+                        <strong class="text-gray-900 font-bold text-sm">${pasar.nama}</strong>
+                        <span class="px-1.5 py-0.5 rounded font-bold text-[10px] ${badgeBg}">${badgeText}</span>
+                    </div>
+                    <p class="text-gray-600">Komoditas: <strong>${pasar.komoditas}</strong></p>
+                    <p class="text-gray-600">Saat Ini: <strong class="text-gray-900">Rp ${pasar.harga_sekarang.toLocaleString('id-ID')} /kg</strong></p>
+                    <p class="text-gray-500 text-[11px]">Sebelumnya: Rp ${pasar.harga_sebelumnya.toLocaleString('id-ID')}</p>
+                    <p class="text-[11px] font-bold ${colorClass}">Perubahan: ${pasar.perubahan > 0 ? '+' : ''}${pasar.perubahan}%</p>
+                </div>
+            `;
+
+            marker.bindPopup(popupContent);
+        });
+    });
+    </script>
+
+    <!-- Dynamic Multi-Commodity Chart.js Script -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const canvasObj = document.getElementById('hargaChart');
+        if (!canvasObj) return;
+
+        let labelsData = [];
+        const labelsElement = document.getElementById('labels-data');
+        if (labelsElement && labelsElement.textContent.trim() !== '') {
+            try {
+                labelsData = JSON.parse(labelsElement.textContent);
+                if (typeof labelsData === 'string') labelsData = JSON.parse(labelsData);
+            } catch (e) {
+                labelsData = ['25 Jul', '26 Jul', '27 Jul', '28 Jul', '29 Jul', '30 Jul', '31 Jul'];
+            }
+        } else {
+            labelsData = ['25 Jul', '26 Jul', '27 Jul', '28 Jul', '29 Jul', '30 Jul', '31 Jul'];
+        }
+
+        let datasetsData = [];
+        const datasetsElement = document.getElementById('datasets-data');
+        if (datasetsElement && datasetsElement.textContent.trim() !== '') {
+            try {
+                datasetsData = JSON.parse(datasetsElement.textContent);
+                if (typeof datasetsData === 'string') datasetsData = JSON.parse(datasetsData);
+            } catch (e) {
+                datasetsData = [];
+            }
+        }
+
+        const colorPalette = [
+            '#046a53', '#e11d48', '#2563eb', '#d97706', '#9333ea', 
+            '#0891b2', '#4d7c0f', '#c026d3', '#ea580c', '#4b5563'
+        ];
+
+        let formattedDatasets = [];
+        if (datasetsData && datasetsData.length > 0) {
+            formattedDatasets = datasetsData.map((ds, index) => {
+                const color = colorPalette[index % colorPalette.length];
+                return {
+                    label: ds.label,
+                    data: ds.data,
+                    borderColor: color,
+                    backgroundColor: color + '1A',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                };
+            });
+        } else {
+            formattedDatasets = [
+                {
+                    label: 'Beras Medium',
+                    data: [14200, 14300, 14300, 14500, 14500, 14400, 14500],
+                    borderColor: '#046a53',
+                    backgroundColor: 'rgba(4, 106, 83, 0.1)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                },
+                {
+                    label: 'Cabai Merah',
+                    data: [38000, 39500, 40000, 41000, 40500, 42000, 42730],
+                    borderColor: '#e11d48',
+                    backgroundColor: 'rgba(225, 29, 72, 0.05)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false,
+                    pointRadius: 3,
+                    pointHoverRadius: 6
+                }
+            ];
+        }
+
+        const formatRupiah = (value) => {
+            return 'Rp ' + new Intl.NumberFormat('id-ID').format(value);
+        };
+
+        new Chart(canvasObj, {
+            type: 'line',
+            data: {
+                labels: labelsData,
+                datasets: formattedDatasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.9)',
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += formatRupiah(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        grid: { color: 'rgba(243, 244, 246, 1)', drawBorder: false },
+                        ticks: {
+                            font: { size: 10 },
+                            callback: function(value) { return formatRupiah(value); }
+                        }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { size: 10 }, maxRotation: 0, autoSkip: true }
+                    }
+                }
+            }
+        });
+    });
+    </script>
+</body>
+</html>

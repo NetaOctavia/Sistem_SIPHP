@@ -1,0 +1,320 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-0 -mt-4 pb-8 space-y-6 font-sans text-slate-800">
+
+    <!-- Header Banner Utama -->
+    <div class="bg-white rounded-2xl p-6 sm:p-8 border border-slate-200/80 shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+        <div class="space-y-2 max-w-3xl">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-50 text-[#009661] text-xs font-semibold border border-emerald-100">
+                <span>🏛️</span>
+                <span>Pemerintah Kabupaten Subang</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                Dinas Koperasi, UMKM, Perdagangan & Perindustrian
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 leading-relaxed">
+                Profil resmi, struktur organisasi, dan rincian Tugas Pokok & Fungsi (Tupoksi) berdasarkan Peraturan Bupati Subang Nomor 14 Tahun 2022.
+            </p>
+        </div>
+
+        <a href="{% static 'pdf/11__TUPOKSI_DKUPP_salinan.pdf' %}" 
+           download="Perbup_No_14_Tahun_2022_DKUPP.pdf" 
+           class="inline-flex items-center space-x-2 bg-[#046a67] hover:bg-[#035250] text-white px-5 py-2.5 rounded-full text-xs font-semibold transition-all shadow-sm active:scale-95">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <span>Unduh Perbup (PDF)</span>
+        </a>
+    </div>
+
+    <!-- Tab Navigation -->
+    <div x-data="{ activeTab: 'tentang' }" class="space-y-6">
+        
+        <!-- Tab Bar -->
+        <div class="border-b border-slate-200 flex space-x-8 text-sm font-medium overflow-x-auto">
+            <button @click="activeTab = 'tentang'"
+                :class="activeTab === 'tentang' ? 'border-[#009661] text-[#009661] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'"
+                class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
+                <span>Profil & Kedudukan</span>
+            </button>
+
+            <button @click="activeTab = 'struktur'"
+                :class="activeTab === 'struktur' ? 'border-[#009661] text-[#009661] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'"
+                class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
+                <span>Struktur Organisasi</span>
+            </button>
+
+            <button @click="activeTab = 'tupoksi'"
+                :class="activeTab === 'tupoksi' ? 'border-[#009661] text-[#009661] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'"
+                class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
+                <span>Tugas Pokok Bidang</span>
+            </button>
+
+            <button @click="activeTab = 'hukum'"
+                :class="activeTab === 'hukum' ? 'border-[#009661] text-[#009661] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'"
+                class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
+                <span>Dasar Hukum</span>
+            </button>
+        </div>
+
+        <!-- TAB 1: PROFIL & KEDUDUKAN -->
+        <div x-show="activeTab === 'tentang'" class="grid md:grid-cols-2 gap-6" x-cloak>
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Kedudukan Dinas</h2>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    Dinas Koperasi, Usaha Mikro, Kecil Menengah, Perdagangan dan Perindustrian (DKUPP) merupakan unsur pelaksana urusan pemerintahan yang menjadi kewenangan Daerah Kabupaten Subang di bidang Koperasi, UMKM, Perdagangan, dan Perindustrian.
+                </p>
+                <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                    DKUPP dipimpin oleh Kepala Dinas yang berkedudukan di bawah dan bertanggung jawab kepada Bupati melalui Sekretaris Daerah.
+                </p>
+            </div>
+
+            <div class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm space-y-4">
+                <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Fungsi Utama</h2>
+                <ul class="space-y-3 text-xs sm:text-sm text-slate-600">
+                    <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#009661] mt-2 flex-shrink-0"></span>
+                        <span>Perumusan kebijakan teknis operasional bidang Koperasi, UMKM, Perdagangan, dan Perindustrian.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#009661] mt-2 flex-shrink-0"></span>
+                        <span>Penyelenggaraan urusan pemerintahan dan pelayanan umum sesuai kewenangan daerah.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#009661] mt-2 flex-shrink-0"></span>
+                        <span>Pembinaan, pengawasan, dan pelaksanaan kegiatan teknis di lapangan.</span>
+                    </li>
+                    <li class="flex items-start gap-2.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[#009661] mt-2 flex-shrink-0"></span>
+                        <span>Pengelolaan administrasi internal, kepegawaian, keuangan, dan aset daerah.</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- TAB 2: STRUKTUR ORGANISASI -->
+        <div x-show="activeTab === 'struktur'" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm space-y-8" x-cloak>
+            <div class="border-b border-slate-100 pb-4">
+                <h2 class="text-lg font-bold text-slate-900">Bagan Struktur Organisasi</h2>
+                <p class="text-xs text-slate-500 mt-0.5">Bagan tata kerja dan hierarki jabatan DKUPP Kabupaten Subang serta khusus Bidang Perdagangan</p>
+            </div>
+
+            <div class="space-y-8">
+                <!-- 1. Struktur Organisasi Utama (Dinas) -->
+                <div class="bg-slate-50/70 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">1. Struktur Organisasi Utama (Dinas)</h3>
+                            <p class="text-xs text-slate-500">Bagan struktur organisasi keseluruhan DKUPP Kabupaten Subang</p>
+                        </div>
+                        <a href="{% static 'image/struktur_organisasi.png' %}" target="_blank" 
+                           class="text-xs font-semibold text-[#009661] hover:underline flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+                            <span>Lihat Gambar Penuh</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-center">
+                        <img src="{% static 'image/struktur_organisasi.png' %}" 
+                             alt="Struktur Organisasi DKUPP Utama" 
+                             class="max-w-full h-auto rounded-lg shadow-sm"
+                             onerror="this.onerror=null; this.src='https://placehold.co/1000x600/f8fafc/94a3b8?text=Bagan+Struktur+Organisasi+DKUPP';">
+                    </div>
+                </div>
+
+                <!-- 2. Struktur Organisasi Bidang Perdagangan -->
+                <div class="bg-slate-50/70 p-5 rounded-xl border border-slate-200 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800">2. Struktur Organisasi Bidang Perdagangan</h3>
+                            <p class="text-xs text-slate-500">Bagan susunan jabatan dan tata kerja internal Bidang Perdagangan</p>
+                        </div>
+                        <a href="{% static 'image/struktur_organisasi_perdagangan.png' %}" target="_blank" 
+                           class="text-xs font-semibold text-[#009661] hover:underline flex items-center gap-1 bg-emerald-50 px-3 py-1.5 rounded-lg border border-emerald-100">
+                            <span>Lihat Gambar Penuh</span>
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                        </a>
+                    </div>
+                    <div class="bg-white p-3 rounded-xl border border-slate-200 flex justify-center">
+                        <img src="{% static 'image/struktur_organisasi_perdagangan.png' %}" 
+                             alt="Struktur Organisasi Bidang Perdagangan" 
+                             class="max-w-full h-auto rounded-lg shadow-sm"
+                             onerror="this.onerror=null; this.src='https://placehold.co/1000x600/f8fafc/94a3b8?text=Bagan+Struktur+Bidang+Perdagangan';">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: TUPOKSI & BIDANG (Fixed Height + Clean Grid Layout) -->
+        <div x-show="activeTab === 'tupoksi'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 items-stretch" x-cloak>
+            
+            <!-- Bidang 01 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <span class="text-xs font-bold text-[#009661] uppercase tracking-wider">Bidang 01</span>
+                    <h3 class="text-base font-bold text-slate-900 mt-1 mb-3">Usaha Mikro, Kecil & Menengah</h3>
+                    <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2 text-xs text-slate-700 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                        <p>1. Menyelenggarakan dan menyusun petunjuk teknis di bidang pembinaan pengusaha mikro, kecil dan menengah.</p>
+                        <p>2. Dalam menyelenggarakan tugas pokok sebagaimana dimaksud pada ayat (1), Bidang Usaha Mikro, Kecil dan Menengah mempunyai fungsi:</p>
+                        <ul class="pl-4 space-y-1 list-none">
+                            <li>a. penyusunan program kerja Bidang Usaha Mikro, Kecil dan Menengah (UMKM);</li>
+                            <li>b. penyusunan rencana kegiatan pemberdayaan dan pengembangan pengusaha kecil dan menengah;</li>
+                            <li>c. pemberian bimbingan teknis bagi Pengusaha Mikro, Kecil dan Menengah;</li>
+                            <li>d. penganalisaan dan penilaian data kelembagaan pengusaha mikro, kecil dan menengah;</li>
+                            <li>e. pelaksanaan pengaturan dan bimbingan teknis serta pengembangan usaha bagi pengusaha mikro, kecil dan menengah di bidang penyaluran dan pemasaran serta mengikuti pelaksanaannya;</li>
+                            <li>f. penganalisaan laporan pelaksanaan bimbingan teknis, pengembangan usaha bagi pengusaha mikro, kecil dan menengah;</li>
+                            <li>g. penyiapan dan pelaksanaan promosi usaha, temu usaha dan studi banding (kunjungan kerja) bagi pelaku usaha mikro, kecil dan menengah;</li>
+                            <li>h. pelaksanaan kerja sama dengan instansi terkait, pengusaha besar/swasta/BUMN untuk memperlancar permodalan dan pemasaran;</li>
+                            <li>i. penyampaian telaahan staf sebagai bahan pertimbangan pengambilan kebijakan Kepala Dinas;</li>
+                            <li>j. penyusunan laporan hasil pelaksanaan kegiatan di bidang usaha mikro, kecil dan menengah;</li>
+                            <li>k. pelaksanaan fungsi lain yang diberikan oleh atasan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    3. Membawahi Kelompok Jabatan Fungsional.
+                </div>
+            </div>
+
+            <!-- Bidang 02 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <span class="text-xs font-bold text-[#009661] uppercase tracking-wider">Bidang 02</span>
+                    <h3 class="text-base font-bold text-slate-900 mt-1 mb-3">Koperasi</h3>
+                    <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2 text-xs text-slate-700 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                        <p>1. Menyelenggarakan dan menyusun petunjuk teknis di Bidang Kelembagaan dan Pendidikan Latihan Koperasi, Pengembangan Usaha Koperasi dan Pengawasan Koperasi.</p>
+                        <p>2. Dalam menyelenggarakan tugas pokok sebagaimana dimaksud pada ayat (1), Bidang Koperasi mempunyai fungsi:</p>
+                        <ul class="pl-4 space-y-1 list-none">
+                            <li>a. penyusunan rencana kerja Bidang Koperasi;</li>
+                            <li>b. penyusunan rencana dan program pemberdayaan dan pengembangan Koperasi;</li>
+                            <li>c. pemberian bimbingan teknis bagi Koperasi;</li>
+                            <li>d. penganalisaan dan penilaian data kelembagaan dan pengawasan Koperasi;</li>
+                            <li>e. pelaksanaan pengaturan dan bimbingan teknis serta pengembangan usaha bagi Koperasi;</li>
+                            <li>f. penganalisaan laporan pelaksanaan bimbingan teknis, pengembangan usaha bagi Koperasi;</li>
+                            <li>g. pelaksanaan kerja sama dengan instansi terkait, pengusaha besar/swasta/BUMN untuk memperlancar permodalan bagi Koperasi;</li>
+                            <li>h. penyusunan petunjuk teknis dan bimbingan teknis pembinaan kelembagaan dan diklat koperasi;</li>
+                            <li>i. penyiapan pelaksanaan bimbingan dan pengarahan metode dan program pelatihan/penyuluhan dan perkoperasian;</li>
+                            <li>j. pelaksanaan penyuluhan dan publikasi perkoperasian kepada masyarakat umum dan gerakan koperasi;</li>
+                            <li>k. pemberian bantuan penyuluhan hukum bagi pengembangan organisasi koperasi;</li>
+                            <li>l. pemberian bimbingan dan pengarahan kepada kader–kader koperasi dari kalangan Gerakan Koperasi dan Masyarakat;</li>
+                            <li>m. penyajikan data dan informasi di bidang koperasi;</li>
+                            <li>n. penyusunan rencana kerja di bidang pengawasan dan pembinaan koperasi;</li>
+                            <li>o. pemeriksaan dan pengawasan koperasi yang wilayah keanggotaan Kabupaten;</li>
+                            <li>p. pemeriksaan dan pengawasan koperasi simpan pinjam/unit simpan pinjam koperasi yang wilayah keanggotaan dalam wilayah kabupaten;</li>
+                            <li>q. pemberdayaan dan perlindungan koperasi yang keanggotaannya Kabupaten;</li>
+                            <li>r. penyampaian telaahan staf sebagai bahan pertimbangan pengambilan kebijakan Kepala Dinas;</li>
+                            <li>s. penyusunan laporan hasil pelaksanaan kegiatan Bidang Koperasi;</li>
+                            <li>t. pelaksanaan fungsi lain yang diberikan oleh atasan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    3. Membawahi Kelompok Jabatan Fungsional.
+                </div>
+            </div>
+
+            <!-- Bidang 03 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <span class="text-xs font-bold text-[#009661] uppercase tracking-wider">Bidang 03</span>
+                    <h3 class="text-base font-bold text-slate-900 mt-1 mb-3">Perindustrian</h3>
+                    <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2 text-xs text-slate-700 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                        <p>1. Bidang Perindustrian mempunyai tugas pokok melaksanakan kegiatan pengelolaan urusan pemerintahan di bidang perindustrian.</p>
+                        <p>2. Dalam menyelenggarakan tugas pokok sebagaimana dimaksud pada ayat (1), Bidang Perindustrian mempunyai fungsi:</p>
+                        <ul class="pl-4 space-y-1 list-none">
+                            <li>a. penyusunan program kerja Bidang Perindustrian;</li>
+                            <li>b. perumusan kebijakan teknis di Bidang Perindustrian;</li>
+                            <li>c. pengelolaan urusan pemerintahan dan pelayanan umum di Bidang Perindustrian;</li>
+                            <li>d. pembinaan, pengawasan dan pengendalian pelaksanaan tugas bidang Industri Agro, Kimia, Tekstil, dan Hasil Hutan, Logam, Mesin, Elektronika, Aneka, Pengembangan Promosi dan Kerjasama Industri;</li>
+                            <li>e. penyampaian telaahan staf sebagai bahan pertimbangan pengambilan kebijakan Kepala Dinas;</li>
+                            <li>f. pelaksanaan koordinasi dengan unit kerja terkait dalam rangka pelaksanaan tugas;</li>
+                            <li>g. penyusunan laporan hasil pelaksanaan kegiatan Bidang Perindustrian;</li>
+                            <li>h. pelaksanaan fungsi lain yang diberikan oleh atasan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    3. Membawahi Kelompok Jabatan Fungsional.
+                </div>
+            </div>
+
+            <!-- Bidang 04 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <span class="text-xs font-bold text-[#009661] uppercase tracking-wider">Bidang 04</span>
+                    <h3 class="text-base font-bold text-slate-900 mt-1 mb-3">Perdagangan</h3>
+                    <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2 text-xs text-slate-700 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                        <p>1. Bidang Perdagangan mempunyai tugas pokok melaksanakan Kegiatan Perdagangan Luar Negeri, Perdagangan Dalam Negeri dan Pengawasan Tertib Niaga di Bidang Perdagangan.</p>
+                        <p>2. Dalam menyelenggarakan tugas pokok sebagaimana dimaksud pada ayat (1), Bidang Perdagangan mempunyai fungsi:</p>
+                        <ul class="pl-4 space-y-1 list-none">
+                            <li>a. penyusunan program kerja Bidang Perdagangan;</li>
+                            <li>b. pelaksanaan koordinasi dan penyiapan bahan bimbingan teknis usaha pengembangan ekspor daerah dan kegiatan perdagangan luar negeri meliputi kegiatan ekspor impor serta melakukan tata laksana pelayanan Surat Keterangan Asal (SKA) Surat Keterangan Eksportir Terdaftar (SKRT);</li>
+                            <li>c. pembinaan terhadap usaha niaga untuk dapat lebih berkembang khususnya untuk pedagang kecil dan informal;</li>
+                            <li>d. pembinaan sarana perdagangan agar dapat lebih berfungsi untuk menunjang perkembangan perdagangan, peningkatan efisiensi dan efektivitas distribusi dalam rangka pengadaan dan penyaluran barang dan jasa;</li>
+                            <li>e. pelaksanaan dan penyusunan petunjuk teknis di bidang promosi dagang dalam rangka pengembangan usaha;</li>
+                            <li>f. pelaksanaan hubungan kerja sama dengan instansi terkait/asosiasi dunia usaha di wilayah Kabupaten Subang;</li>
+                            <li>g. pelaksanaan perlindungan konsumen dan pengawasan tertib niaga;</li>
+                            <li>h. pelaksanaan bimbingan usaha dan sarana perdagangan serta pelaksanaan pendaftaran perusahaan;</li>
+                            <li>i. penyampaian telaahan staf sebagai bahan pertimbangan pengambilan kebijakan Kepala Dinas;</li>
+                            <li>j. penyusunan laporan hasil pelaksanaan kegiatan Bidang Perdagangan;</li>
+                            <li>k. pelaksanaan fungsi lain yang diberikan oleh atasan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    3. Membawahi Kelompok Jabatan Fungsional.
+                </div>
+            </div>
+
+            <!-- Bidang 05 -->
+            <div class="bg-white p-6 rounded-2xl border border-slate-200/80 shadow-sm flex flex-col justify-between space-y-4">
+                <div>
+                    <span class="text-xs font-bold text-[#009661] uppercase tracking-wider">Bidang 05</span>
+                    <h3 class="text-base font-bold text-slate-900 mt-1 mb-3">Pengelolaan Pasar</h3>
+                    <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2 text-xs text-slate-700 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                        <p>1. Bidang Pengelolaan Pasar mempunyai tugas pokok melakukan kegiatan pengelolaan retribusi, keamanan dan kebersihan serta pengawasan dan pengembangan pasar.</p>
+                        <p>2. Dalam menyelenggarakan tugas pokok sebagaimana dimaksud pada ayat (1), Bidang Pengelolaan Pasar mempunyai fungsi:</p>
+                        <ul class="pl-4 space-y-1 list-none">
+                            <li>a. penyusunan program kerja pada Bidang Pengelolaan Pasar;</li>
+                            <li>b. penyusunan petunjuk teknis operasional pengelolaan pasar;</li>
+                            <li>c. pelaksanaan kebijakan teknis di bidang pengelolaan pasar;</li>
+                            <li>d. pelaksanaan bimbingan dan pelayanan perizinan usaha di bidang pengelolaan pasar;</li>
+                            <li>e. pengelolaan retribusi pasar;</li>
+                            <li>f. pengelolaan kebersihan dan keamanan pasar;</li>
+                            <li>g. pelaksanaan pengawasan dan pengembangan pasar;</li>
+                            <li>h. pemantauan dan pengevaluasian pelaksanaan kegiatan pengelolaan pasar;</li>
+                            <li>i. penyampaian telaahan staf sebagai bahan pertimbangan pengambilan kebijakan Kepala Dinas;</li>
+                            <li>j. pelaksanaan koordinasi dengan unit kerja terkait dalam rangka pelaksanaan tugas;</li>
+                            <li>k. penyusunan laporan hasil pelaksanaan kegiatan Seksi Pengelolaan Pasar;</li>
+                            <li>l. pelaksanaan fungsi lain yang diberikan oleh atasan.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-3 border-t border-slate-100 text-xs text-slate-500 font-medium">
+                    3. Membawahi Kelompok Jabatan Fungsional.
+                </div>
+            </div>
+
+        </div>
+
+        <!-- TAB 4: DASAR HUKUM -->
+        <div x-show="activeTab === 'hukum'" class="bg-white p-6 sm:p-8 rounded-2xl border border-slate-200/80 shadow-sm space-y-4" x-cloak>
+            <h2 class="text-lg font-bold text-slate-900 border-b border-slate-100 pb-3">Landasan Hukum & Regulasi</h2>
+            <ol class="list-decimal list-inside space-y-2.5 text-xs sm:text-sm text-slate-700 leading-relaxed">
+                <li class="pl-2">Undang-Undang Nomor 14 Tahun 1950 tentang Pembentukan Daerah-Daerah Kabupaten Dalam Lingkungan Propinsi Djawa Barat.</li>
+                <li class="pl-2">Undang-Undang Nomor 5 Tahun 2014 tentang Aparatur Sipil Negara.</li>
+                <li class="pl-2">Undang-Undang Nomor 23 Tahun 2014 tentang Pemerintahan Daerah.</li>
+                <li class="pl-2">Peraturan Pemerintah Nomor 18 Tahun 2016 tentang Perangkat Daerah.</li>
+                <li class="pl-2">Peraturan Pemerintah Nomor 11 Tahun 2017 tentang Manajemen Pegawai Negeri Sipil.</li>
+                <li class="pl-2">Peraturan Menteri PANRB Nomor 17 Tahun 2021 tentang Penyetaraan Jabatan Administrasi.</li>
+                <li class="pl-2">Peraturan Menteri PANRB Nomor 25 Tahun 2021 tentang Penyederhanaan Struktur Organisasi.</li>
+                <li class="pl-2">Peraturan Daerah Kabupaten Subang Nomor 7 Tahun 2016 tentang Pembentukan & Susunan Perangkat Daerah.</li>
+                <li class="pl-2">Peraturan Bupati Subang Nomor 14 Tahun 2022 tentang Kedudukan, Susunan Organisasi, Tugas Pokok dan Fungsi DKUPP Subang.</li>
+            </ol>
+        </div>
+
+    </div>
+
+</main>
+{% endblock %}

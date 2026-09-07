@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- FORM FILTER PASAR & KOMODITAS -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Pantau Grafik & Harga Komoditas</h2>
+        
+        <form method="GET" action="{% url 'komoditas' %}" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+            <!-- Dropdown Pilihan Pasar -->
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Pasar</label>
+                <select name="pasar_id" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-3 font-medium">
+                    <option value="">-- Semua Pasar (Rata-rata) --</option>
+                    {% for p in daftar_pasar %}
+                        <option value="{{ p.id }}" {% if selected_pasar_id|add:"0" == p.id %}selected{% endif %}>
+                            {{ p.nama_pasar }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Dropdown Pilihan Komoditas -->
+            <div>
+                <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Komoditas</label>
+                <select name="komoditas_id" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-3 font-medium">
+                    <option value="">-- Semua Komoditas --</option>
+                    {% for item in daftar_komoditas %}
+                        <option value="{{ item.id }}" {% if selected_id|add:"0" == item.id %}selected{% endif %}>
+                            {{ item.nama }} ({{ item.satuan|default:"kg" }})
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- CARD GRAFIK TREN HARGA -->
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
+        <div class="flex justify-between items-center">
+            <h3 class="text-base font-bold text-gray-900">Perkembangan Harga 7 Hari Terakhir</h3>
+            <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                📈 Grafik Tren
+            </span>
+        </div>
+
+        <!-- CANVAS CHART -->
+        <div class="relative w-full h-80">
+            <canvas id="chartKomoditas"></canvas>
+        </div>
+    </div>
+
+    <!-- TABEL TABULASI HARGA KOMODITAS PASAR -->
+    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+        <!-- Table Header Info -->
+        <div class="p-5 bg-gradient-to-r from-emerald-50/50 to-white border-b border-gray-100 flex justify-between items-center">
+            <div>
+                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
+                    📊 Daftar Harga Komoditas Pasar
+                </h3>
+                <p class="text-xs text-gray-500 mt-0.5">Rincian pantauan harga kebutuhan pokok terkini di Kabupaten Subang.</p>
+            </div>
+            <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-200/50">
+                Update Realtime
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+                <thead>
+                    <tr class="bg-gray-100/70 border-b border-gray-200 text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">
+                        <th class="py-3.5 px-6 text-center w-16">NO</th>
+                        <th class="py-3.5 px-6">NAMA KOMODITAS</th>
+                        <th class="py-3.5 px-6 text-center w-32">SATUAN</th>
+                        <th class="py-3.5 px-6 text-right w-48">HARGA TERKINI</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100 text-xs text-gray-700">
+                    {% for item in daftar_komoditas %}
+                    <tr class="{% cycle 'bg-white' 'bg-slate-50/60' %} hover:bg-emerald-50/40 transition-colors duration-150">
+                        <!-- Nomor -->
+                        <td class="py-3.5 px-6 text-center font-semibold text-gray-400">
+                            {{ forloop.counter }}
+                        </td>
+                        
+                        <!-- Nama Komoditas -->
+                        <td class="py-3.5 px-6 font-bold text-gray-800">
+                            {{ item.nama }}
+                        </td>
+                        
+                        <!-- Satuan Badge -->
+                        <td class="py-3.5 px-6 text-center">
+                            <span class="inline-block px-2.5 py-0.5 text-[11px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-md">
+                                {{ item.satuan|default:"kg" }}
+                            </span>
+                        </td>
+                        
+                        <!-- Harga Terkini -->
+                        <td class="py-3.5 px-6 text-right font-extrabold text-emerald-600 text-sm">
+                            Rp {{ item.harga_terakhir|default:"0" }}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="py-12 text-center text-gray-400 font-medium">
+                            <div class="flex flex-col items-center gap-2">
+                                <span class="text-2xl">📦</span>
+                                <span>Belum ada data komoditas yang tersedia.</span>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+<!-- SCRIPT CHART.JS -->
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById("chartKomoditas");
+        if (!ctx) return;
+
+        const labels = {{ chart_labels|safe }};
+        const datasets = {{ chart_datasets|safe }};
+
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false /* Sembunyikan legenda agar tidak menumpuk */
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return 'Rp ' + value.toLocaleString('id-ID');
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

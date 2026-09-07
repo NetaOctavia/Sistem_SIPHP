@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Harga Komoditas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-8">
+    <div class="max-w-lg mx-auto bg-white p-6 rounded-lg shadow-md">
+        <h2 class="text-2xl font-bold mb-6 text-gray-800">Edit Harga Komoditas</h2>
+
+        <form action="{% url 'edit_harga' item.id %}" method="POST" class="space-y-4">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nama Pasar</label>
+                <input type="text" name="nama_pasar" value="{{ item.nama_pasar }}" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Nama Komoditas</label>
+                <input type="text" name="nama_komoditas" value="{{ item.nama_komoditas }}" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Harga (Rp)</label>
+                <input type="number" name="harga" value="{{ item.harga }}" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700">Satuan</label>
+                <input type="text" name="satuan" value="{{ item.satuan }}" required class="mt-1 w-full p-2 border border-gray-300 rounded-md">
+            </div>
+
+            <div class="flex justify-between items-center pt-4">
+                <a href="{% url 'kelola_harga' %}" class="text-gray-600 hover:underline">Batal</a>
+                <button type="submit" class="bg-yellow-600 text-white px-4 py-2 rounded-md hover:bg-yellow-700">Update Data</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

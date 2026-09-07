@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portal Informasi Harga Pangan{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet.js CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navbar -->
+    <nav class="bg-emerald-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+            <a href="{% url 'beranda' %}" class="flex items-center gap-2">
+                <span class="text-2xl">🌾</span>
+                <span class="font-bold text-lg tracking-wide">Portal Pangan</span>
+            </a>
+
+            <!-- Menu Utama Navigation -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="{% url 'beranda' %}" class="hover:text-emerald-200 transition">Beranda</a>
+                <a href="{% url 'komoditas' %}" class="hover:text-emerald-200 transition">Komoditas</a>
+                <a href="{% url 'berita' %}" class="hover:text-emerald-200 transition">Berita</a>
+                <a href="{% url 'profil' %}" class="hover:text-emerald-200 transition">Profil</a>
+                <a href="{% url 'kontak' %}" class="hover:text-emerald-200 transition">Kontak</a>
+            </div>
+
+            <div>
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="/admin/" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-4 py-2 rounded-lg font-semibold shadow transition">
+                        ⚙️ Panel Admin
+                    </a>
+                {% else %}
+                    <a href="/admin/login/" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg border border-emerald-500 font-semibold transition">
+                        🔐 Login Admin
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Block Dynamic -->
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full mb-auto">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-500 mt-12">
+        <p>© 2026 Portal Informasi Harga Pangan Harian. Seluruh Data Publik Terbuka.</p>
+    </footer>
+
+</body>
+</html><!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Portal Informasi Harga Pangan{% endblock %}</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Leaflet.js CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col justify-between">
+
+    <!-- Header Navbar -->
+    <nav class="bg-emerald-600 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 flex justify-between items-center h-16">
+            <a href="{% url 'beranda' %}" class="flex items-center gap-2">
+                <span class="text-2xl">🌾</span>
+                <span class="font-bold text-lg tracking-wide">Portal Pangan</span>
+            </a>
+
+            <!-- Menu Utama Navigation -->
+            <div class="hidden md:flex items-center space-x-6 text-sm font-medium">
+                <a href="{% url 'beranda' %}" class="hover:text-emerald-200 transition">Beranda</a>
+                <a href="{% url 'komoditas' %}" class="hover:text-emerald-200 transition">Komoditas</a>
+                <a href="{% url 'berita' %}" class="hover:text-emerald-200 transition">Berita</a>
+                <a href="{% url 'profil' %}" class="hover:text-emerald-200 transition">Profil</a>
+                <a href="{% url 'kontak' %}" class="hover:text-emerald-200 transition">Kontak</a>
+            </div>
+
+            <div>
+                {% if user.is_authenticated and user.is_staff %}
+                    <a href="/admin/" class="bg-amber-500 hover:bg-amber-600 text-white text-xs px-4 py-2 rounded-lg font-semibold shadow transition">
+                        ⚙️ Panel Admin
+                    </a>
+                {% else %}
+                    <a href="/admin/login/" class="bg-emerald-700 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-lg border border-emerald-500 font-semibold transition">
+                        🔐 Login Admin
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Content Block Dynamic -->
+    <main class="max-w-7xl mx-auto px-4 py-6 w-full mb-auto">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-500 mt-12">
+        <p>© 2026 Portal Informasi Harga Pangan Harian. Seluruh Data Publik Terbuka.</p>
+    </footer>
+
+</body>
+</html>

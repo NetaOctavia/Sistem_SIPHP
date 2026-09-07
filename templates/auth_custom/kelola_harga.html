@@ -1,0 +1,312 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
+        <div>
+            <h1 class="text-2xl font-extrabold text-gray-900">Kelola Harga Komoditas</h1>
+        </div>
+        <div class="flex items-center space-x-2">
+            <button type="button" onclick="toggleModal('modalTambahPasar')" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl transition border border-blue-200">
+                + Tambah Pasar Baru
+            </button>
+            <button type="button" onclick="toggleModal('modalTambahKomoditas')" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold rounded-xl transition border border-gray-200">
+                + Tambah Jenis Komoditas
+            </button>
+            <button type="submit" form="formKelolaHarga" class="px-5 py-2.5 bg-[#009661] hover:bg-[#008153] text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-1.5">
+                <span>💾</span>
+                <span>Simpan Perubahan Harga</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Alert Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 p-4 text-xs font-medium rounded-xl {% if message.tags == 'success' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% else %}bg-amber-100 text-amber-800 border border-amber-200{% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+
+    <!-- Form Input Harga -->
+    <form method="POST" action="{% url 'harga_komoditas' %}" id="formKelolaHarga" class="space-y-6">
+        {% csrf_token %}
+        
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 space-y-6">
+            
+            <!-- FORM OPSI PENGATURAN PASAR & TANGGAL -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-xl border border-gray-200/60 text-xs">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Pasar / Lokasi Pemantauan</label>
+                    <div class="flex items-center gap-2">
+                        <select name="pasar_id" id="selectPasar" onchange="switchPasar(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661] bg-white font-semibold text-gray-800">
+                            {% for p in daftar_pasar %}
+                                <option value="{{ p.id }}" {% if pasar_aktif and p.id == pasar_aktif.id %}selected{% endif %}>
+                                    {{ p.nama_pasar }}
+                                </option>
+                            {% empty %}
+                                <option value="">Pasar Belum Ditentukan</option>
+                            {% endfor %}
+                        </select>
+                        {% if pasar_aktif %}
+                            <a href="{% url 'hapus_pasar' pasar_aktif.id %}" 
+                               onclick="return confirm('Yakin ingin menghapus pasar {{ pasar_aktif.nama_pasar }}? Semua data riwayat harga di pasar ini akan ikut terhapus.')" 
+                               class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold rounded-lg transition text-xs whitespace-nowrap flex items-center gap-1"
+                               title="Hapus Pasar Aktif">
+                                🗑️ Hapus Pasar
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Tanggal Pembaruan</label>
+                    <input type="date" name="tanggal" value="{{ tanggal_input|default:today_date }}" required onchange="switchTanggal(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661] bg-white">
+                </div>
+            </div>
+
+            <!-- TABEL KOMODITAS & INPUT HARGA -->
+            <div class="overflow-x-auto rounded-xl border border-gray-200">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b border-gray-200">
+                        <tr>
+                            <th class="px-4 py-3.5 w-12">No</th>
+                            <th class="px-4 py-3.5">Nama Komoditas</th>
+                            <th class="px-4 py-3.5">Satuan</th>
+                            <th class="px-4 py-3.5">Input Harga Terbaru (Rp)</th>
+                            <th class="px-4 py-3.5 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        {% if komoditas_list %}
+                            {% for item in komoditas_list %}
+                            <tr class="hover:bg-gray-50/80 transition">
+                                <td class="px-4 py-3 font-semibold text-gray-500">{{ forloop.counter }}</td>
+                                <td class="px-4 py-3 font-bold text-gray-800 text-sm">{{ item.nama }}</td>
+                                <td class="px-4 py-3 text-gray-500">/ {{ item.satuan }}</td>
+                                <td class="px-4 py-3">
+                                    <div class="relative max-w-xs">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 font-semibold">Rp</span>
+                                        <input type="text" 
+                                               inputmode="numeric"
+                                               name="harga_{{ item.id }}" 
+                                               value="{% if item.harga_existing %}{{ item.harga_existing|floatformat:'0' }}{% elif item.harga_terakhir %}{{ item.harga_terakhir|floatformat:'0' }}{% else %}0{% endif %}" 
+                                               placeholder="0"
+                                               class="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg font-bold text-[#009661] focus:outline-none focus:ring-2 focus:ring-[#009661] bg-white input-harga-field">
+                                    </div>
+                                </td>
+                                <td class="px-4 py-3 text-center whitespace-nowrap">
+                                    <div class="flex items-center justify-center space-x-3">
+                                        <button type="button" 
+                                                onclick="openEditModal('{{ item.id }}', '{{ item.nama|escapejs }}', '{{ item.satuan|escapejs }}', '{% if item.harga_existing %}{{ item.harga_existing|floatformat:'0' }}{% else %}{{ item.harga_terakhir|floatformat:'0' }}{% endif %}')"
+                                                class="text-amber-600 hover:underline font-semibold text-xs">
+                                            Edit
+                                        </button>
+                                        <span class="text-gray-300">|</span>
+                                        <a href="{% url 'hapus_komoditas' item.id %}" 
+                                           onclick="return confirm('Yakin ingin menghapus komoditas {{ item.nama }}? Semua data harga komoditas ini akan hilang.')"
+                                           class="text-rose-600 hover:underline font-semibold text-xs">
+                                            Hapus
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr>
+                                <td colspan="5" class="px-4 py-10 text-center text-gray-400">
+                                    Belum ada jenis komoditas. Silakan klik tombol <strong>+ Tambah Jenis Komoditas</strong> untuk menambahkan.
+                                </td>
+                            </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </form>
+</div>
+
+<!-- Modal Tambah Pasar Baru -->
+<div id="modalTambahPasar" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-base font-bold text-gray-900">Tambah Pasar Pemantauan Baru</h3>
+            <button type="button" onclick="toggleModal('modalTambahPasar')" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+        </div>
+        
+        <form method="POST" action="{% url 'harga_komoditas' %}" class="space-y-4 text-xs">
+            {% csrf_token %}
+            <input type="hidden" name="tambah_pasar" value="1">
+            
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Nama Pasar</label>
+                <input type="text" name="nama_pasar_baru" required placeholder="Contoh: Pasar Pujasera Subang" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661]">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button type="button" onclick="toggleModal('modalTambahPasar')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-[#009661] hover:bg-[#008153] text-white font-bold rounded-lg shadow">Tambah Pasar</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Tambah Komoditas -->
+<div id="modalTambahKomoditas" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-base font-bold text-gray-900">Tambah Jenis Komoditas Baru</h3>
+            <button type="button" onclick="toggleModal('modalTambahKomoditas')" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+        </div>
+        
+        <form method="POST" action="{% url 'harga_komoditas' %}" class="space-y-4 text-xs">
+            {% csrf_token %}
+            <input type="hidden" name="tambah_komoditas" value="1">
+            
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Nama Komoditas</label>
+                <input type="text" name="nama_komoditas" required placeholder="Contoh: Daging Sapi Murni" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661]">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Satuan</label>
+                <input type="text" name="satuan" value="kg" required placeholder="Contoh: kg, liter, ikat" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661]">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button type="button" onclick="toggleModal('modalTambahKomoditas')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-[#009661] hover:bg-[#008153] text-white font-bold rounded-lg shadow">Tambah</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal Edit Komoditas -->
+<div id="modalEditKomoditas" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+        <div class="flex justify-between items-center border-b pb-3">
+            <h3 class="text-base font-bold text-gray-900">Edit Komoditas</h3>
+            <button type="button" onclick="toggleModal('modalEditKomoditas')" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+        </div>
+        
+        <form id="formEditKomoditas" method="POST" action="" class="space-y-4 text-xs">
+            {% csrf_token %}
+            <input type="hidden" id="editPasarId" name="pasar_id" value="{% if pasar_aktif %}{{ pasar_aktif.id }}{% endif %}">
+            
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Nama Komoditas</label>
+                <input type="text" id="editNama" name="nama" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661]">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Satuan</label>
+                <input type="text" id="editSatuan" name="satuan" required class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661]">
+            </div>
+
+            <div>
+                <label class="block font-semibold text-gray-700 mb-1">Harga Terbaru (Rp)</label>
+                <input type="text" id="editHarga" name="harga" inputmode="numeric" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#009661] font-bold text-[#009661]">
+            </div>
+
+            <div class="flex justify-end space-x-2 pt-3 border-t">
+                <button type="button" onclick="toggleModal('modalEditKomoditas')" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg">Batal</button>
+                <button type="submit" class="px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white font-bold rounded-lg shadow">Simpan Perubahan</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    function toggleModal(id) {
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.toggle('hidden');
+            modal.classList.toggle('flex');
+        }
+    }
+
+    function switchPasar(pasarId) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('pasar_id', pasarId);
+        window.location.search = urlParams.toString();
+    }
+
+    function switchTanggal(tanggal) {
+        const urlParams = new URLSearchParams(window.location.search);
+        urlParams.set('tanggal', tanggal);
+        window.location.search = urlParams.toString();
+    }
+
+    function openEditModal(id, nama, satuan, harga) {
+        const form = document.getElementById('formEditKomoditas');
+        form.action = `/kelola-harga/edit/${id}/`;
+        
+        document.getElementById('editNama').value = nama;
+        document.getElementById('editSatuan').value = satuan;
+        
+        const selectPasar = document.getElementById('selectPasar');
+        if (selectPasar) {
+            document.getElementById('editPasarId').value = selectPasar.value;
+        }
+
+        const inputHarga = document.getElementById('editHarga');
+        inputHarga.value = harga;
+        formatRupiahInput(inputHarga);
+        
+        toggleModal('modalEditKomoditas');
+    }
+
+    function formatRupiahInput(input) {
+        let value = input.value;
+        
+        if (value.includes(',')) {
+            let parts = value.split(',');
+            if (parseInt(parts[1]) > 0) {
+                value = parts[0] + parts[1].padEnd(3, '0');
+            } else {
+                value = parts[0];
+            }
+        }
+
+        let cleanValue = value.replace(/\D/g, '');
+        if (cleanValue) {
+            input.value = new Intl.NumberFormat('id-ID').format(parseInt(cleanValue, 10));
+        } else {
+            input.value = '';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputsHarga = document.querySelectorAll('.input-harga-field, #editHarga');
+        const formHarga = document.getElementById('formKelolaHarga');
+        const formEdit = document.getElementById('formEditKomoditas');
+
+        inputsHarga.forEach(input => {
+            formatRupiahInput(input);
+
+            input.addEventListener('input', function() {
+                formatRupiahInput(this);
+            });
+        });
+
+        if (formHarga) {
+            formHarga.addEventListener('submit', function() {
+                document.querySelectorAll('.input-harga-field').forEach(input => {
+                    input.value = input.value.replace(/\D/g, '');
+                });
+            });
+        }
+
+        if (formEdit) {
+            formEdit.addEventListener('submit', function() {
+                const editHargaInput = document.getElementById('editHarga');
+                if (editHargaInput) {
+                    editHargaInput.value = editHargaInput.value.replace(/\D/g, '');
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}
