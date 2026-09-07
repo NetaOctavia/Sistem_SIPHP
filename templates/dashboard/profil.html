@@ -57,6 +57,13 @@
                 class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
                 <span>Dasar Hukum</span>
             </button>
+
+            <button @click="activeTab = 'program'"
+                :class="activeTab === 'program' ? 'border-[#009661] text-[#009661] font-bold' : 'border-transparent text-slate-500 hover:text-slate-800 hover:border-slate-300'"
+                class="py-3 px-1 border-b-2 transition-all duration-150 flex items-center gap-2 whitespace-nowrap">
+                <span>Program Bidang Perdagangan</span>
+            </button>
+
         </div>
 
         <!-- TAB 1: PROFIL & KEDUDUKAN -->
@@ -313,6 +320,87 @@
                 <li class="pl-2">Peraturan Bupati Subang Nomor 14 Tahun 2022 tentang Kedudukan, Susunan Organisasi, Tugas Pokok dan Fungsi DKUPP Subang.</li>
             </ol>
         </div>
+
+
+        <!--TAB %: PROGRAM-->
+        <div x-show="activeTab === 'program'" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 items-stretch" x-cloak>
+    
+    <div class="bg-gradient-to-br from-white to-slate-50/50 rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#046a67]"></div>
+
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 text-[#046a67] font-bold text-xs border border-emerald-100">
+                    01
+                </span>
+            </div>
+
+            <span class="text-xs font-extrabold text-[#046a67] uppercase tracking-wider leading-snug block mb-1">
+                Program Stabilisasi Harga Barang Kebutuhan Pokok Dan Barang Penting
+            </span>
+            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center space-x-1.5">
+                <span>📌</span>
+                <span>Daftar Kegiatan:</span>
+            </h3>
+
+            <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2.5 text-xs text-slate-600 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Pengendalian Harga, dan Stok Barang Kebutuhan Pokok dan Barang Penting di Tingkat Pasar Kabupaten/Kota.</p>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Pengawasan Pupuk dan Pestisida Bersubsidi di Tingkat Daerah Kabupaten/Kota.</p>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Pemantauan Harga dan Stok Barang Kebutuhan Pokok dan Barang Penting pada Pasar Rakyat yang Terintegrasi dalam Sistem Informasi Perdagangan.</p>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Pengawasan Pengadaan Pupuk dan Pestisida Bersubsidi.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bg-gradient-to-br from-white to-slate-50/50 rounded-2xl border border-slate-200/80 p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between relative overflow-hidden group">
+        <div class="absolute left-0 top-0 bottom-0 w-1.5 bg-[#046a67]"></div>
+
+        <div>
+            <div class="flex items-center justify-between mb-3">
+                <span class="inline-flex items-center justify-center w-8 h-8 rounded-xl bg-emerald-50 text-[#046a67] font-bold text-xs border border-emerald-100">
+                    02
+                </span>
+            </div>
+
+            <span class="text-xs font-extrabold text-[#046a67] uppercase tracking-wider leading-snug block mb-1">
+                Pengembangan Ekspor
+            </span>
+            <h3 class="text-sm font-bold text-slate-800 mb-3 flex items-center space-x-1.5">
+                <span>📌</span>
+                <span>Daftar Kegiatan:</span>
+            </h3>
+
+            <div class="max-h-[380px] overflow-y-auto pr-2 space-y-2.5 text-xs text-slate-600 font-medium leading-relaxed border-t border-slate-100 pt-3">
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Penyelenggaraan Promosi Dagang Melalui Pameran Dagang bagi Produk Ekspor Unggulan yang Terdapat pada 1 (Satu) Daerah Kabupaten/Kota.</p>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Penyelenggaraan Promosi Dagang Melalui Misi Dagang bagi produk ekspor.</p>
+                </div>
+                <div class="flex items-start space-x-2.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#046a67] mt-1.5 flex-shrink-0"></span>
+                    <p>Pameran Dagang Nasional dan Misi Dagang.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>    
+
 
     </div>
 
