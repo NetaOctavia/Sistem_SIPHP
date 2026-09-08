@@ -7,7 +7,11 @@
         <div>
             <h1 class="text-2xl font-extrabold text-gray-900">Kelola Harga Komoditas</h1>
         </div>
-        <div class="flex items-center space-x-2">
+        <div class="flex flex-wrap items-center gap-2">
+            <a href="{% url 'export_harga_csv' %}{% if pasar_aktif %}?pasar_id={{ pasar_aktif.id }}{% endif %}" class="px-3.5 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-xs font-bold rounded-xl transition border border-emerald-200 flex items-center gap-1">
+                <span>📥</span>
+                <span>Export CSV</span>
+            </a>
             <button type="button" onclick="toggleModal('modalTambahPasar')" class="px-3.5 py-2 bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-bold rounded-xl transition border border-blue-200">
                 + Tambah Pasar Baru
             </button>
@@ -51,12 +55,14 @@
                             {% endfor %}
                         </select>
                         {% if pasar_aktif %}
-                            <a href="{% url 'hapus_pasar' pasar_aktif.id %}" 
-                               onclick="return confirm('Yakin ingin menghapus pasar {{ pasar_aktif.nama_pasar }}? Semua data riwayat harga di pasar ini akan ikut terhapus.')" 
-                               class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold rounded-lg transition text-xs whitespace-nowrap flex items-center gap-1"
-                               title="Hapus Pasar Aktif">
-                                🗑️ Hapus Pasar
-                            </a>
+                            <form method="POST" action="{% url 'hapus_pasar' pasar_aktif.id %}" onsubmit="return confirm('Yakin ingin menghapus pasar {{ pasar_aktif.nama_pasar }}? Semua data riwayat harga di pasar ini akan ikut terhapus.')" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit"
+                                   class="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold rounded-lg transition text-xs whitespace-nowrap flex items-center gap-1"
+                                   title="Hapus Pasar Aktif">
+                                    🗑️ Hapus Pasar
+                                </button>
+                            </form>
                         {% endif %}
                     </div>
                 </div>
@@ -104,11 +110,12 @@
                                             Edit
                                         </button>
                                         <span class="text-gray-300">|</span>
-                                        <a href="{% url 'hapus_komoditas' item.id %}" 
-                                           onclick="return confirm('Yakin ingin menghapus komoditas {{ item.nama }}? Semua data harga komoditas ini akan hilang.')"
-                                           class="text-rose-600 hover:underline font-semibold text-xs">
-                                            Hapus
-                                        </a>
+                                        <form method="POST" action="{% url 'hapus_komoditas' item.id %}" onsubmit="return confirm('Yakin ingin menghapus komoditas {{ item.nama }}? Semua data harga komoditas ini akan hilang.')" style="display:inline;">
+                                            {% csrf_token %}
+                                            <button type="submit" class="text-rose-600 hover:underline font-semibold text-xs">
+                                                Hapus
+                                            </button>
+                                        </form>
                                     </div>
                                 </td>
                             </tr>
