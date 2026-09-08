@@ -25,8 +25,6 @@ ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='127.0.0.1,localhost', cast=Csv(
 # Application definition
 
 INSTALLED_APPS = [
-    'jazzmin',
-
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -142,45 +140,18 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # --- CONFIGURATION FOR AUTHENTICATION REDIRECTS ---
-LOGIN_REDIRECT_URL = 'harga_komoditas'
+LOGIN_REDIRECT_URL = 'dashboard_index'
 LOGOUT_REDIRECT_URL = 'beranda'
 LOGIN_URL = 'login'
 
 
-# --- JAZZMIN ADMIN SETTINGS ---
-JAZZMIN_SETTINGS = {
-    "site_title": "SIPHP Admin",
-    "site_header": "SIPHP Dashboard",
-    "site_brand": "Sistem Informasi Pangan",
-    "welcome_sign": "Selamat Datang di Panel Admin SIPHP",
-    "copyright": "SIPHP Ltd",
-    "search_model": "komoditas.Komoditas",
-    "show_sidebar": True,
-    "navigation_expanded": True,
-}
 
-# --- JAZZMIN THEME (TEMA HIJAU SEGAR) ---
-JAZZMIN_UI_TWEAKS = {
-    "navbar": "navbar-success navbar-dark",       # Header atas warna hijau
-    "theme": "minty",                             # Tema warna hijau segar
-    "sidebar": "sidebar-dark-success",            # Sidebar menu hijau gelap
-    "accent": "accent-success",                   # Akses warna hijau
-    "button_classes": {
-        "primary": "btn-success",
-        "secondary": "btn-outline-secondary",
-        "info": "btn-info",
-        "warning": "btn-warning",
-        "danger": "btn-danger",
-        "success": "btn-success"
-    }
-}
 
-# --- CONFIGURATION FOR TUNNELING (PINGGY) ---
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.pinggy.link',
-    'https://*.pinggy.net',
-    'https://*.free.pinggy.net',
-    'https://*.run.pinggy-free.link',
-]
+# --- CONFIGURATION FOR TUNNELING & CSRF ---
+CSRF_TRUSTED_ORIGINS = config(
+    'CSRF_TRUSTED_ORIGINS',
+    default='http://127.0.0.1:8000,http://localhost:8000,http://127.0.0.1,http://localhost,https://*.pinggy.link,https://*.pinggy.net,https://*.free.pinggy.net,https://*.run.pinggy-free.link',
+    cast=Csv()
+)
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

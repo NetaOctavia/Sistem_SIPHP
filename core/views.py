@@ -30,7 +30,7 @@ def layanan_teknis(request):
     return render(request, "dashboard/layanan_teknis.html")
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def kelola_kontak(request):
     pesan_qs = PesanKontak.objects.all().order_by("-created_at")
     paginator = Paginator(pesan_qs, 10)
@@ -47,7 +47,7 @@ def kelola_kontak(request):
     )
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def hapus_kontak(request, id):
     if request.method != "POST":
         return redirect("kelola_kontak")

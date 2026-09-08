@@ -49,7 +49,7 @@
                 </div>
                 <div>
                     <h1 class="text-xl font-extrabold tracking-tight leading-none text-white">SIPHP</h1>
-                    <p class="text-xs text-emerald-100 font-medium mt-0.5">Kabupaten Subang</p>
+                    <p class="text-xs text-emerald-100 font-medium mt-0.5">Bidang Perdagangan — DKUPP Kab. Subang</p>
                 </div>
             </a>
 
@@ -67,20 +67,15 @@
                     <span class="hidden lg:inline-block text-xs font-medium text-emerald-100">
                         Halo, <strong class="text-white">{{ user.username }}</strong>
                     </span>
-                    <a href="{% url 'harga_komoditas' %}" class="px-4 py-2 text-xs font-semibold bg-emerald-950/40 hover:bg-emerald-950/60 text-white rounded-xl border border-emerald-400/30 transition shadow-sm">
-                        Kelola Harga
+                    <a href="{% url 'dashboard_index' %}" class="px-4 py-2 text-xs font-semibold bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold rounded-xl shadow-md transition">
+                        📊 Dashboard Admin
                     </a>
                     <form action="{% url 'logout' %}" method="post" class="inline">
                         {% csrf_token %}
-                        <button type="submit" class="px-4 py-2 text-xs font-semibold bg-red-600 hover:bg-red-700 text-white rounded-xl transition shadow-sm">
+                        <button type="submit" class="px-4 py-2 text-xs font-semibold bg-rose-600 hover:bg-rose-700 text-white rounded-xl transition shadow-sm">
                             Logout
                         </button>
                     </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="px-4 py-2 text-xs font-semibold bg-emerald-950/40 hover:bg-emerald-950/60 text-white rounded-xl border border-emerald-400/30 flex items-center space-x-1.5 transition shadow-sm">
-                        <span>🔐</span>
-                        <span>Login Admin</span>
-                    </a>
                 {% endif %}
 
                 <button @click="mobileMenuOpen = !mobileMenuOpen" aria-label="Toggle Navigation Menu" class="md:hidden p-2 text-white hover:bg-emerald-800/50 rounded-lg focus:outline-none">
@@ -437,7 +432,7 @@
     <!-- Footer -->
     <footer class="bg-gray-900 text-gray-400 text-xs py-6 mt-10 border-t border-gray-800">
         <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p>&copy; 2026 SIPHP Kabupaten Subang. Dinas Koperasi, UMKM, Perdagangan, dan Perindustrian.</p>
+            <p>&copy; 2026 SIPHP — Dinas Koperasi, UKM, Perindustrian, dan Perdagangan (DKUPP) Kabupaten Subang | Bidang Perdagangan.</p>
             <div class="flex space-x-4">
                 <a href="{% url 'beranda' %}" class="hover:text-white transition">Beranda</a>
                 <a href="{% url 'komoditas' %}" class="hover:text-white transition">Komoditas</a>

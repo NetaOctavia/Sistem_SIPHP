@@ -53,75 +53,47 @@
                 </div>
                 <div class="flex flex-col">
                     <span class="font-extrabold text-xl tracking-wide leading-none text-white">SIPHP</span>
-                    <span class="text-xs text-emerald-100 font-medium mt-0.5">Kabupaten Subang</span>
+                    <span class="text-xs text-emerald-100 font-medium mt-0.5">Bidang Perdagangan — DKUPP Kab. Subang</span>
                 </div>
             </a>
 
-            {% if user.is_authenticated %}
-                <!-- MENU ADMIN / PENGELOLA (PILL TAB CONTAINER) -->
-                <div class="bg-emerald-900/60 backdrop-blur-md p-1.5 rounded-2xl flex items-center space-x-1 border border-white/10">
-                    
-                    <!-- Kelola Harga & Komoditas -->
-                    <a href="{% url 'harga_komoditas' %}" 
-                       class="{% if request.resolver_match.url_name == 'harga_komoditas' %}bg-white text-emerald-800 font-bold shadow{% else %}text-white hover:bg-white/10 font-medium{% endif %} text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5">
-                        🏷️ Kelola Harga & Komoditas
-                    </a>
+            <!-- MENU UTAMA PUBLIK -->
+            <div class="flex items-center space-x-3 md:space-x-6 text-xs md:text-sm font-medium">
+                <a href="{% url 'beranda' %}" class="{% if request.resolver_match.url_name == 'beranda' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Beranda
+                </a>
+                <a href="{% url 'komoditas' %}" class="{% if request.resolver_match.url_name == 'komoditas' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Komoditas
+                </a>
+                <a href="{% url 'berita' %}" class="{% if request.resolver_match.url_name == 'berita' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Berita
+                </a>
+                <a href="{% url 'layanan_teknis' %}" class="{% if request.resolver_match.url_name == 'layanan_teknis' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Layanan Teknis
+                </a>
+                <a href="{% url 'profil' %}" class="{% if request.resolver_match.url_name == 'profil' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Profil
+                </a>
+                <a href="{% url 'kontak' %}" class="{% if request.resolver_match.url_name == 'kontak' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
+                    Kontak
+                </a>
+            </div>
 
-                    <!-- Kelola Berita -->
-                    <a href="{% url 'kelola_berita' %}" 
-                       class="{% if request.resolver_match.url_name == 'kelola_berita' %}bg-white text-emerald-800 font-bold shadow{% else %}text-white hover:bg-white/10 font-medium{% endif %} text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5">
-                        📰 Kelola Berita
-                    </a>
-
-                    <!-- Kelola Kontak -->
-                    <a href="{% url 'kelola_kontak' %}" 
-                       class="{% if request.resolver_match.url_name == 'kelola_kontak' %}bg-white text-emerald-800 font-bold shadow{% else %}text-white hover:bg-white/10 font-medium{% endif %} text-xs px-4 py-2 rounded-xl transition flex items-center gap-1.5">
-                        📞 Kelola Kontak
-                    </a>
-
-                </div>
-
-                <!-- PROFILE INFO & LOGOUT -->
-                <div class="flex items-center gap-3">
-                    <span class="text-xs md:text-sm text-white">
-                        Halo, <span class="font-bold">{{ user.username }}</span>
-                    </span>
-                    <a href="{% url 'logout' %}" class="bg-red-600 hover:bg-red-700 text-white text-xs px-4 py-2 rounded-xl font-semibold transition shadow-sm">
-                        Logout
-                    </a>
-                </div>
-            {% else %}
-                <!-- MENU UTAMA PUBLIK (HANYA TAMPIL SAAT BELUM LOGIN) -->
-                <div class="flex items-center space-x-3 md:space-x-6 text-xs md:text-sm font-medium">
-                    <a href="{% url 'beranda' %}" class="{% if request.resolver_match.url_name == 'beranda' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Beranda
-                    </a>
-                    <a href="{% url 'komoditas' %}" class="{% if request.resolver_match.url_name == 'komoditas' or request.resolver_match.url_name == 'login' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Komoditas
-                    </a>
-                    <a href="{% url 'berita' %}" class="{% if request.resolver_match.url_name == 'berita' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Berita
-                    </a>
-                    <a href="{% url 'layanan_teknis' %}" class="{% if request.resolver_match.url_name == 'layanan_teknis' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Layanan Teknis
-                    </a>
-                    <a href="{% url 'profil' %}" class="{% if request.resolver_match.url_name == 'profil' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Profil
-                    </a>
-                    <a href="{% url 'kontak' %}" class="{% if request.resolver_match.url_name == 'kontak' %}text-white border-b-2 border-white font-bold{% else %}text-emerald-100 hover:text-white{% endif %} pb-0.5 transition">
-                        Kontak
-                    </a>
-                </div>
-
-                <!-- Tombol Auth Dynamic -->
-                <div>
-                    {% block auth_button %}
-                    <a href="{% url 'login' %}" class="bg-emerald-800/60 hover:bg-emerald-800 text-white text-xs px-4 py-2 rounded-xl border border-emerald-400/40 font-semibold transition flex items-center gap-1.5 shadow-sm">
-                        🔐 Login Admin
-                    </a>
-                    {% endblock %}
-                </div>
-            {% endif %}
+            <!-- Tombol Login / Dashboard Dynamic (Hanya tampil jika user sudah login) -->
+            <div>
+                {% if user.is_authenticated %}
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'dashboard_index' %}" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs px-3.5 py-2 rounded-xl transition shadow-md flex items-center gap-1.5">
+                            📊 Dashboard Admin
+                        </a>
+                        <a href="{% url 'logout' %}" class="bg-rose-600/90 hover:bg-rose-700 text-white text-xs px-3 py-2 rounded-xl font-semibold transition">
+                            Logout
+                        </a>
+                    </div>
+                {% else %}
+                    {% block auth_button %}{% endblock %}
+                {% endif %}
+            </div>
 
         </div>
     </nav>
@@ -133,7 +105,7 @@
 
     <!-- Footer -->
     <footer class="bg-white border-t border-gray-200 py-6 text-center text-xs text-gray-500 mt-12">
-        <p>© 2026 SI HARGA SUBANG - Sistem Pemantauan Harga Kebutuhan Pokok Kabupaten Subang.</p>
+        <p>© 2026 SIPHP — Dinas Koperasi, UKM, Perindustrian, dan Perdagangan (DKUPP) Kabupaten Subang | Bidang Perdagangan.</p>
     </footer>
 
 </body>

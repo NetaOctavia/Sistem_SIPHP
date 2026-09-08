@@ -1,21 +1,14 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Master Data Komoditas - SIPHP Dashboard Admin{% endblock %}
+{% block header_title %}Master Komoditas Pangan{% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8">
-    
-    <!-- ALERT MESSAGES -->
-    {% if messages %}
-        {% for message in messages %}
-            <div class="mb-4 p-4 text-xs font-medium rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-200">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 md:p-8 space-y-6">
+<div class="space-y-6 pt-2">
+    <div class="bg-white rounded-2xl shadow-xs border border-gray-200/80 p-6 md:p-8 space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-                <h2 class="text-2xl font-extrabold text-gray-900">Kelola Data Komoditas</h2>
+                <h2 class="text-xl font-extrabold text-gray-900">Kelola Data Master Komoditas</h2>
                 <p class="text-xs text-gray-500 mt-1">Tambah & atur daftar barang / komoditas pangan pasar</p>
             </div>
             <!-- TOMBOL TAMBAH -->

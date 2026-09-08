@@ -14,7 +14,7 @@ def berita(request):
     )
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def kelola_berita(request):
     if request.method == "POST":
         form = BeritaForm(request.POST, request.FILES)
@@ -42,7 +42,7 @@ def kelola_berita(request):
     )
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def edit_berita(request, id):
     berita_obj = get_object_or_404(Berita, id=id)
     if request.method == "POST":
@@ -56,7 +56,7 @@ def edit_berita(request, id):
     return redirect("kelola_berita")
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def hapus_berita(request, id):
     if request.method != "POST":
         return redirect("kelola_berita")

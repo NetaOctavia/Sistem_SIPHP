@@ -136,11 +136,46 @@ def beranda(request):
     return render(request, "dashboard/beranda.html", context)
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
+def dashboard_index(request):
+    """
+    Overview dashboard admin SIPHP ( /dashboard/ )
+    """
+    total_pasar = Pasar.objects.count()
+    total_komoditas = Komoditas.objects.count()
+    today = timezone.now().date()
+    total_input_today = HargaKomoditas.objects.filter(tanggal=today).count()
+
+    status_pasar_list = []
+    for p in Pasar.objects.all().order_by("nama_pasar"):
+        c = HargaKomoditas.objects.filter(pasar=p, tanggal=today).count()
+        status_pasar_list.append({
+            "pasar": p,
+            "sudah_input": c > 0,
+            "jumlah_input": c,
+        })
+
+    context = {
+        "total_pasar": total_pasar,
+        "total_komoditas": total_komoditas,
+        "total_input_today": total_input_today,
+        "status_pasar_list": status_pasar_list,
+    }
+    return render(request, "admin_dashboard/index.html", context)
+
+
+@staff_member_required(login_url='login')
 def harga_komoditas(request):
+    user_pasar = None
+    if hasattr(request.user, "profil_admin") and request.user.profil_admin and request.user.profil_admin.pasar:
+        user_pasar = request.user.profil_admin.pasar
+
     if request.method == "POST":
-        # 1. Form Tambah Pasar Baru
+        # 1. Form Tambah Pasar Baru (Khusus Admin Utama)
         if "tambah_pasar" in request.POST:
+            if user_pasar:
+                messages.error(request, "Anda tidak memiliki akses untuk menambah pasar.")
+                return redirect("harga_komoditas")
             nama_pasar_baru = request.POST.get("nama_pasar_baru")
             if nama_pasar_baru:
                 pasar_obj, _ = Pasar.objects.get_or_create(
@@ -149,11 +184,14 @@ def harga_komoditas(request):
                 messages.success(
                     request, f'Pasar "{pasar_obj.nama_pasar}" berhasil ditambahkan!'
                 )
-                return redirect(f"/kelola-harga/?pasar_id={pasar_obj.id}")
+                return redirect(f"/dashboard/harga/?pasar_id={pasar_obj.id}")
             return redirect("harga_komoditas")
 
         # 2. Form Tambah Komoditas Baru
         if "tambah_komoditas" in request.POST:
+            if user_pasar:
+                messages.error(request, "Hanya Admin Utama yang dapat menambah master komoditas.")
+                return redirect("harga_komoditas")
             nama_komoditas_baru = request.POST.get("nama_komoditas_baru")
             satuan_baru = request.POST.get("satuan_baru", "kg")
             harga_awal = request.POST.get("harga_awal", "")
@@ -168,33 +206,41 @@ def harga_komoditas(request):
                     val_clean = "".join(filter(str.isdigit, harga_awal))
                     if val_clean:
                         harga_val = int(val_clean)
-                        today = timezone.now().date()
-                        pasar_aktif = Pasar.objects.first()
-                        if pasar_aktif:
+                        pasar_target = user_pasar or Pasar.objects.first()
+                        if pasar_target:
                             HargaKomoditas.objects.update_or_create(
                                 komoditas=kom_obj,
-                                pasar=pasar_aktif,
-                                tanggal=today,
+                                pasar=pasar_target,
+                                tanggal=timezone.now().date(),
                                 defaults={
                                     "harga": harga_val,
                                     "diinput_oleh": request.user,
                                 },
                             )
-
                 messages.success(
                     request, f'Komoditas "{kom_obj.nama}" berhasil ditambahkan!'
                 )
             return redirect("harga_komoditas")
 
-        # 3. Form Input/Update Batch Harga Harian Komoditas
+        # 3. Form Batch Update Harga
         pasar_id = request.POST.get("pasar_id")
-        tanggal = request.POST.get("tanggal")
+        tanggal_str = request.POST.get("tanggal")
 
-        if not pasar_id or not tanggal:
-            messages.error(request, "Harap pilih pasar dan tanggal terlebih dahulu!")
-            return redirect("harga_komoditas")
+        # Jika user terikat ke pasar tertentu, paksakan pasar tersebut
+        if user_pasar:
+            pasar_obj = user_pasar
+        else:
+            pasar_obj = get_object_or_404(Pasar, id=pasar_id)
 
-        pasar_obj = get_object_or_404(Pasar, id=pasar_id)
+        try:
+            tanggal = (
+                timezone.datetime.strptime(tanggal_str, "%Y-%m-%d").date()
+                if tanggal_str
+                else timezone.now().date()
+            )
+        except ValueError:
+            tanggal = timezone.now().date()
+
         count_updated = 0
 
         for key, val in request.POST.items():
@@ -230,7 +276,7 @@ def harga_komoditas(request):
                 request, "Tidak ada harga komoditas yang dimasukkan atau diubah."
             )
 
-        return redirect(f"/kelola-harga/?pasar_id={pasar_obj.id}&tanggal={tanggal}")
+        return redirect(f"/dashboard/harga/?pasar_id={pasar_obj.id}&tanggal={tanggal}")
 
     # --- TAMPILAN GET REQUEST ---
     daftar_pasar = Pasar.objects.all().order_by("nama_pasar")
@@ -240,7 +286,9 @@ def harga_komoditas(request):
     )
 
     pasar_aktif = None
-    if selected_pasar_id:
+    if user_pasar:
+        pasar_aktif = user_pasar
+    elif selected_pasar_id:
         pasar_aktif = Pasar.objects.filter(id=selected_pasar_id).first()
     elif daftar_pasar.exists():
         pasar_aktif = daftar_pasar.first()
@@ -284,7 +332,7 @@ def harga_komoditas(request):
     )
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def hapus_pasar(request, pasar_id):
     if request.method != "POST":
         return redirect("harga_komoditas")
@@ -295,7 +343,7 @@ def hapus_pasar(request, pasar_id):
     return redirect("harga_komoditas")
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def export_harga_csv(request):
     selected_pasar_id = request.GET.get("pasar_id")
     selected_tanggal = request.GET.get("tanggal")

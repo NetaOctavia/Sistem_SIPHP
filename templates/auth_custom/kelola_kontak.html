@@ -1,8 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'admin_dashboard/base_admin.html' %}
 {% load static %}
 
+{% block title %}Kelola Pesan Warga - SIPHP Dashboard Admin{% endblock %}
+{% block header_title %}Pesan & Masukan Warga{% endblock %}
+
 {% block content %}
-<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6" 
+<div class="space-y-6 pt-2" 
       x-data="{ 
           modalPesan: false, 
           detailNama: '', 
@@ -205,5 +208,5 @@
         </div>
     </template>
 
-</main>
+</div>
 {% endblock %}

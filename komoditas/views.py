@@ -122,7 +122,7 @@ def komoditas(request):
     return render(request, "dashboard/komoditas.html", context)
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def edit_komoditas(request, id):
     kom = get_object_or_404(Komoditas, id=id)
 
@@ -169,7 +169,7 @@ def edit_komoditas(request, id):
     return redirect("harga_komoditas")
 
 
-@staff_member_required
+@staff_member_required(login_url='login')
 def hapus_komoditas(request, id):
     if request.method != "POST":
         return redirect("harga_komoditas")

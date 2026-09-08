@@ -6,7 +6,7 @@ from django.shortcuts import redirect, render
 
 def user_login(request):
     if request.user.is_authenticated:
-        return redirect("harga_komoditas")
+        return redirect("dashboard_index")
 
     if request.method == "POST":
         username_req = request.POST.get("username")
@@ -21,7 +21,7 @@ def user_login(request):
             messages.success(
                 request, f"Selamat datang kembali, {user.username}!"
             )
-            return redirect("harga_komoditas")
+            return redirect("dashboard_index")
         else:
             messages.error(request, "Username atau password salah!")
 
