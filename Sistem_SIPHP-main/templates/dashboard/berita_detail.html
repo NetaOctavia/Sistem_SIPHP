@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ berita.judul }} - SIPHP Kabupaten Subang{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+
+    <!-- Kartu Utama Berita -->
+    <article class="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+        {% if berita.display_gambar %}
+        <img src="{{ berita.display_gambar }}"
+             alt="{{ berita.judul }}"
+             onerror="this.onerror=null; this.style.display='none';"
+             class="w-full h-64 md:h-80 object-cover">
+        {% endif %}
+
+        <div class="p-6 md:p-8 space-y-4">
+            <div class="flex flex-wrap items-center gap-3">
+                <span class="text-xs text-emerald-700 font-semibold bg-emerald-50 border border-emerald-100 px-2.5 py-1 rounded-md">Berita Pangan</span>
+                <span class="text-xs text-gray-400">🗓️ {{ berita.created_at|date:"d F Y" }}</span>
+            </div>
+
+            <h1 class="text-xl md:text-2xl font-extrabold text-gray-900 leading-snug">
+                {{ berita.judul }}
+            </h1>
+
+            <div class="text-sm text-gray-600 leading-relaxed space-y-3">
+                {% if berita.ringkasan %}
+                    <p>{{ berita.ringkasan }}</p>
+                {% else %}
+                    <p class="italic text-gray-400">Ringkasan berita belum tersedia. Buka artikel sumber untuk membaca selengkapnya.</p>
+                {% endif %}
+            </div>
+
+            {% if berita.url_sumber %}
+            <div class="pt-4 border-t border-gray-100">
+                <p class="text-xs text-gray-400 mb-2">Sumber asli artikel:</p>
+                <a href="{{ berita.url_sumber }}" target="_blank" rel="noopener noreferrer"
+                   class="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#046a53] hover:bg-emerald-700 px-4 py-2.5 rounded-xl transition shadow-sm">
+                    Buka Artikel Sumber ↗
+                </a>
+                <p class="text-[10px] text-gray-400 mt-2">Catatan: sebagian situs sumber dapat membatasi akses pengunjung (mis. error 403 dari situs tersebut).</p>
+            </div>
+            {% endif %}
+        </div>
+    </article>
+
+    <!-- Berita Lainnya -->
+    {% if berita_lain %}
+    <section class="bg-white rounded-2xl border border-gray-200/80 shadow-sm p-6">
+        <h2 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide mb-4">Berita Lainnya</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {% for item in berita_lain %}
+            <a href="{% url 'berita_detail' item.id %}"
+               class="group flex items-center space-x-3 p-3 rounded-xl border border-gray-100 hover:border-emerald-200 hover:bg-emerald-50/40 transition">
+                {% if item.display_gambar %}
+                <img src="{{ item.display_gambar }}"
+                     alt="{{ item.judul }}"
+                     loading="lazy"
+                     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=150&q=80';"
+                     class="w-16 h-12 rounded-lg object-cover flex-shrink-0">
+                {% endif %}
+                <div class="min-w-0">
+                    <h3 class="text-xs font-bold text-gray-900 line-clamp-2 group-hover:text-[#046a53] transition-colors">
+                        {{ item.judul }}
+                    </h3>
+                    <span class="text-[10px] text-gray-400">{{ item.created_at|date:"d F Y" }}</span>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="mt-5 pt-4 border-t border-gray-100">
+            <a href="{% url 'berita' %}" class="text-xs font-bold text-[#046a53] hover:underline">&larr; Kembali ke Daftar Berita</a>
+        </div>
+    </section>
+    {% endif %}
+
+</div>
+{% endblock %}

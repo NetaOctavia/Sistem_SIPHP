@@ -1,0 +1,194 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Overview - SIPHP Dashboard Admin{% endblock %}
+{% block header_title %}Overview Dashboard{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+
+    <!-- BANNER WELCOME CARD -->
+    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-3xl p-6 shadow-md border border-slate-800 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+        <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold border border-emerald-500/30 mb-2">
+                <span>👋</span>
+                <span>Selamat Datang di Panel Sistem SIPHP</span>
+            </div>
+            <h1 class="text-xl md:text-2xl font-extrabold tracking-tight">Halo, {{ request.user.username }}!</h1>
+            <p class="text-xs text-slate-300 mt-1 max-w-2xl">
+                {% if request.user.profil_admin and request.user.profil_admin.pasar %}
+                    Anda bertugas sebagai <strong>Petugas Admin {{ request.user.profil_admin.pasar.nama_pasar }}</strong>. Silakan input dan update harga pangan harian untuk pasar Anda.
+                {% else %}
+                    Anda login sebagai <strong>Admin Utama DKUPP Kabupaten Subang</strong>. Anda memiliki akses penuh untuk mengelola harga semua pasar, komoditas, berita, dan pesan warga.
+                {% endif %}
+            </p>
+        </div>
+        <a href="{% url 'harga_komoditas' %}" class="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold text-xs rounded-xl shadow-lg transition flex items-center gap-2 flex-shrink-0">
+            <span>➕ Input Harga Hari Ini</span>
+        </a>
+    </div>
+
+    <!-- METRIC CARDS GRID -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- CARD 1: Total Pasar -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Pasar</p>
+                <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ total_pasar|default:0 }}</h3>
+                <p class="text-[11px] text-gray-400 mt-1">Pasar di wilayah Kab. Subang</p>
+            </div>
+            <div class="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-emerald-100">
+                🏛️
+            </div>
+        </div>
+
+        <!-- CARD 2: Total Komoditas -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Total Komoditas</p>
+                <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ total_komoditas|default:0 }}</h3>
+                <p class="text-[11px] text-gray-400 mt-1">Jenis bahan pangan</p>
+            </div>
+            <div class="w-12 h-12 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-blue-100">
+                🥬
+            </div>
+        </div>
+
+        <!-- CARD 3: Input Hari Ini -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Input Hari Ini</p>
+                <h3 class="text-2xl font-extrabold text-emerald-600 mt-1">{{ total_input_today|default:0 }}</h3>
+                <p class="text-[11px] text-gray-400 mt-1">Data harga diperbarui</p>
+            </div>
+            <div class="w-12 h-12 bg-amber-50 text-amber-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-amber-100">
+                📈
+            </div>
+        </div>
+
+        <!-- CARD 4: Tanggal Sistem -->
+        <div class="bg-white rounded-2xl p-5 border border-gray-200/80 shadow-xs flex items-center justify-between">
+            <div>
+                <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Tanggal Server</p>
+                <h3 class="text-sm font-extrabold text-gray-900 mt-1">{% now "d F Y" %}</h3>
+                <p class="text-[11px] text-emerald-600 font-semibold mt-1">● Server Aktif</p>
+            </div>
+            <div class="w-12 h-12 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center text-xl font-bold border border-purple-100">
+                📅
+            </div>
+        </div>
+
+    </div>
+
+    <!-- STATUS INPUT PASAR HARI INI & QUICK ACTIONS -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- TABLE STATUS INPUT PER PASAR (2 COLS) -->
+        <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200/80 shadow-xs p-6 space-y-4">
+            <div class="flex items-center justify-between border-b border-gray-100 pb-4">
+                <div>
+                    <h3 class="text-sm font-extrabold text-gray-900">Status Input Harga Pasar Hari Ini</h3>
+                    <p class="text-xs text-gray-500">Daftar pembaruan data harga komoditas per pasar</p>
+                </div>
+                <a href="{% url 'harga_komoditas' %}" class="text-xs font-bold text-emerald-600 hover:text-emerald-700">
+                    Kelola Harga &rarr;
+                </a>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-500 font-bold uppercase tracking-wider border-b border-gray-100">
+                        <tr>
+                            <th class="py-3 px-4">Nama Pasar</th>
+                            <th class="py-3 px-4">Lokasi</th>
+                            <th class="py-3 px-4 text-center">Status Input</th>
+                            <th class="py-3 px-4 text-right">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100 text-gray-700">
+                        {% for item in status_pasar_list %}
+                        <tr class="hover:bg-gray-50/60 transition">
+                            <td class="py-3 px-4 font-bold text-gray-900">🏛️ {{ item.pasar.nama_pasar }}</td>
+                            <td class="py-3 px-4 text-gray-500">{{ item.pasar.lokasi|default:"Subang" }}</td>
+                            <td class="py-3 px-4 text-center">
+                                {% if item.sudah_input %}
+                                    <span class="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]">
+                                        ✓ {{ item.jumlah_input }} Komoditas
+                                    </span>
+                                {% else %}
+                                    <span class="inline-flex items-center gap-1 bg-rose-50 text-rose-700 border border-rose-200 px-2.5 py-0.5 rounded-full font-bold text-[10px]">
+                                        ! Belum Input
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="py-3 px-4 text-right">
+                                <a href="{% url 'harga_komoditas' %}?pasar_id={{ item.pasar.id }}" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-[11px] font-semibold inline-block">
+                                    Input Harga
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="py-6 text-center text-gray-400">Belum ada pasar terdaftar.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- QUICK ACTIONS & MENU CEPAT (1 COL) -->
+        <div class="space-y-4">
+            <div class="bg-white rounded-2xl border border-gray-200/80 shadow-xs p-6 space-y-4">
+                <h3 class="text-sm font-extrabold text-gray-900 border-b border-gray-100 pb-3">Aksi Cepat Admin</h3>
+                
+                <div class="space-y-2.5">
+                    <a href="{% url 'harga_komoditas' %}" class="flex items-center gap-3 p-3 bg-emerald-50/60 hover:bg-emerald-100/80 rounded-xl border border-emerald-200/60 transition group">
+                        <div class="w-9 h-9 bg-emerald-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-xs">
+                            📈
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900 group-hover:text-emerald-800">Input Data Harga</h4>
+                            <p class="text-[10px] text-gray-500">Update harga komoditas per pasar</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'export_harga_csv' %}" class="flex items-center gap-3 p-3 bg-blue-50/60 hover:bg-blue-100/80 rounded-xl border border-blue-200/60 transition group">
+                        <div class="w-9 h-9 bg-blue-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-xs">
+                            📥
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900 group-hover:text-blue-800">Export Laporan CSV</h4>
+                            <p class="text-[10px] text-gray-500">Download rekap harga Excel/CSV</p>
+                        </div>
+                    </a>
+
+                    {% if not request.user.profil_admin or not request.user.profil_admin.pasar %}
+                    <a href="{% url 'kelola_komoditas' %}" class="flex items-center gap-3 p-3 bg-amber-50/60 hover:bg-amber-100/80 rounded-xl border border-amber-200/60 transition group">
+                        <div class="w-9 h-9 bg-amber-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-xs">
+                            🥬
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900 group-hover:text-amber-800">Kelola Master Komoditas</h4>
+                            <p class="text-[10px] text-gray-500">Tambah/edit jenis barang & satuan</p>
+                        </div>
+                    </a>
+
+                    <a href="{% url 'kelola_berita' %}" class="flex items-center gap-3 p-3 bg-purple-50/60 hover:bg-purple-100/80 rounded-xl border border-purple-200/60 transition group">
+                        <div class="w-9 h-9 bg-purple-600 text-white rounded-lg flex items-center justify-center font-bold text-sm shadow-xs">
+                            📰
+                        </div>
+                        <div>
+                            <h4 class="text-xs font-bold text-gray-900 group-hover:text-purple-800">Kelola Berita Pangan</h4>
+                            <p class="text-[10px] text-gray-500">Publikasi informasi & edukasi</p>
+                        </div>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}
