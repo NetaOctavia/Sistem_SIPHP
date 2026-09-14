@@ -2,91 +2,93 @@
 {% load static %}
 
 {% block content %}
-<div class="space-y-6">
-
-    <!-- HEADER HALAMAN -->
-    <div class="relative rounded-2xl p-8 shadow-md text-white overflow-hidden" style="min-height: 200px;">
-        <!-- Background Image -->
+<div class="max-w-7xl mx-auto space-y-8">
+    
+    <!-- HERO BANNER PROFESIONAL (Full Background & Teks Pinggir) -->
+    <div class="relative w-full h-64 sm:h-72 lg:h-80 rounded-2xl overflow-hidden shadow-sm border border-gray-200 flex flex-col items-start justify-center text-left">
+        <!-- Background Image (Full Width & Height) -->
         <div class="absolute inset-0 z-0">
             <img src="{% static 'image/kapal_ekspor.jpg' %}" alt="Kapal Ekspor" class="w-full h-full object-cover">
-            <div class="absolute inset-0 bg-gray-900/60 mix-blend-multiply"></div>
+            <!-- Overlay gelap merata (slate-900/50) agar teks putih sangat kontras dan mudah dibaca -->
+            <div class="absolute inset-0 bg-slate-900/50"></div>
         </div>
-
-        <div class="relative z-10">
-            <div class="flex items-center gap-3 mb-2">
-                <span class="text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8 drop-shadow-md" viewBox="0 0 640 512" fill="currentColor">
+        
+        <!-- Konten Teks (Pinggir Kiri) -->
+        <div class="relative z-10 px-8 sm:px-14 lg:px-16 w-full max-w-4xl">
+            <div class="flex justify-start mb-5">
+                <!-- Ikon Kecil Estetik -->
+                <div class="w-12 h-12 bg-white/10 backdrop-blur-md rounded-xl border border-white/20 flex items-center justify-center text-white shadow-lg">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512" fill="currentColor" class="w-6 h-6">
                         <path d="M73.4 83.1c-14.7-6.2-31.4-1.7-41.5 10.7C19.9 108.5 24 133.4 42.4 141l92.5 38.3L153 150l-29.3-8.8c-12-3.6-18.8-16.3-15.2-28.2s16.3-18.8 28.2-15.2L174.1 109l62.3-51.9c13.7-11.4 33.7-11.1 47 1l125.7 94.3 64-16c14.2-3.5 29 1 39 12l29 31.9c9.5 10.4 12.6 25 8.2 38.4l-11.7 35.1 43.1 17.8c18.5 7.6 22.5 32.5 10.5 47.1l-14.8 18c-7.3 8.9-18 13.9-29.6 13.9H512c-5.7 0-11.2-1.7-15.8-4.9l-72-50.4c-9-6.3-20.7-6.9-30.2-1.5L343.4 274.6c-13.8 7.8-30.8 8.4-45.1 1.7L181.7 221.7c-9.7-4.5-20.9-4.8-30.8-.9L37.7 263.2c-15.6 6.1-25.7 21.1-25.7 37.9V336c0 14.7 10.1 27.2 24.3 30.6l21.2 5.3 0 16.1c0 26.5 21.5 48 48 48H128c11 0 21.1-3.7 29.2-9.9l46.2 37c15.2 12.1 34.6 18.9 54.6 18.9s39.4-6.8 54.6-18.9l46.2-37c8.1 6.2 18.2 9.9 29.2 9.9h22.5c26.5 0 48-21.5 48-48V372l22.2-5.5c14.5-3.6 24.8-16.4 24.8-31.5V308.2c0-5-1.5-9.9-4.3-14.2l-21.2-32.9L362 135c-4.4-3.3-11-3.4-15.6-.4l-52.5 34.3c-4.4 2.9-9.8 4.1-15.1 3.5l-63.5-7.1L128.5 91.8c-15.5-12.9-38.3-13.6-55.1-8.7z"/>
                     </svg>
-                </span>
-                <h1 class="text-2xl font-extrabold tracking-tight">Komoditi Ekspor</h1>
+                </div>
             </div>
-            <p class="text-gray-100 text-sm max-w-2xl font-medium">
-                Komoditas unggulan Kabupaten Subang yang dipantau untuk pasar ekspor,
-                beserta harga acuan terkininya di tingkat produsen.
-            </p>
-            <div class="mt-4 inline-flex items-center gap-2 bg-black/30 backdrop-blur-sm border border-white/20 rounded-full px-4 py-1.5 text-xs font-semibold">
-                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                {{ total_komoditas_ekspor }} komoditas dalam kategori ini
+            
+            <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg mb-4">Komoditi Ekspor</h1>
+            <p class="text-sm sm:text-base text-gray-200 font-medium drop-shadow-md max-w-2xl">Pantauan harga rata-rata komoditi unggulan pasar ekspor di wilayah Kabupaten Subang secara realtime.</p>
+            
+            <div class="mt-8 flex justify-start">
+                <span class="inline-flex items-center gap-2 px-4 py-2 bg-black/40 backdrop-blur-md border border-white/20 text-white rounded-lg font-bold text-xs shadow-xl">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    {{ total_komoditas_ekspor }} Komoditi Tercatat
+                </span>
             </div>
         </div>
     </div>
 
-    <!-- TABEL KOMODITI EKSPOR -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
-        <div class="p-5 bg-gradient-to-r from-emerald-50/50 to-white border-b border-gray-100 flex justify-between items-center">
-            <div>
-                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
-                    📦 Daftar Komoditi Ekspor
-                </h3>
-                <p class="text-xs text-gray-500 mt-0.5">Harga terkini dihitung dari rata-rata seluruh pasar pantauan.</p>
-            </div>
-            <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-200/50">
-                Kategori: Komoditi Ekspor
-            </span>
+    <!-- TABEL PROFESIONAL -->
+    <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 bg-white flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-800">Daftar Harga Terkini</h3>
+            <button onclick="window.location.reload()" class="text-xs font-semibold text-gray-500 hover:text-blue-600 transition-colors flex items-center gap-1.5 px-3 py-1.5 bg-gray-50 hover:bg-blue-50 rounded-lg border border-gray-200">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+                </svg>
+                Perbarui
+            </button>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-100/70 border-b border-gray-200 text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">
-                        <th class="py-3.5 px-6 text-center w-16">NO</th>
-                        <th class="py-3.5 px-6">NAMA KOMODITAS</th>
-                        <th class="py-3.5 px-6">KATEGORI</th>
-                        <th class="py-3.5 px-6 text-center w-32">SATUAN</th>
-                        <th class="py-3.5 px-6 text-right w-48">HARGA TERKINI</th>
+            <table class="min-w-full text-left">
+                <thead class="bg-gray-50">
+                    <tr class="border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                        <th class="py-3 px-6 w-16 text-center">No</th>
+                        <th class="py-3 px-6">Nama Komoditi</th>
+                        <th class="py-3 px-6">Kategori</th>
+                        <th class="py-3 px-6 text-center">Satuan</th>
+                        <th class="py-3 px-6 text-right">Harga (Rp)</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-xs text-gray-700">
+                <tbody class="divide-y divide-gray-100 text-sm">
                     {% for item in daftar_komoditas_ekspor %}
-                    <tr class="{% cycle 'bg-white' 'bg-slate-50/60' %} hover:bg-emerald-50/40 transition-colors duration-150">
-                        <td class="py-3.5 px-6 text-center font-semibold text-gray-400">{{ forloop.counter }}</td>
-                        <td class="py-3.5 px-6 font-bold text-gray-800">{{ item.nama }}</td>
-                        <td class="py-3.5 px-6">
-                            <span class="inline-block px-2.5 py-0.5 text-[11px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-md">
+                    <tr class="hover:bg-gray-50 transition-colors">
+                        <td class="py-4 px-6 text-center text-gray-500 font-medium">{{ forloop.counter }}</td>
+                        <td class="py-4 px-6 font-semibold text-gray-800">{{ item.nama }}</td>
+                        <td class="py-4 px-6">
+                            <span class="inline-flex items-center px-2.5 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded border border-gray-200">
                                 {{ item.kategori }}
                             </span>
                         </td>
-                        <td class="py-3.5 px-6 text-center">
-                            <span class="inline-block px-2.5 py-0.5 text-[11px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-md">
-                                {{ item.satuan|default:"kg" }}
-                            </span>
+                        <td class="py-4 px-6 text-center text-gray-500 font-medium">
+                            {{ item.satuan|default:"kg" }}
                         </td>
-                        <td class="py-3.5 px-6 text-right font-extrabold text-emerald-600 text-sm">
-                            {% if item.harga_terakhir %}Rp {{ item.harga_terakhir|floatformat:"0" }}{% else %}<span class="text-gray-400 font-medium">Belum ada data harga</span>{% endif %}
+                        <td class="py-4 px-6 text-right">
+                            {% if item.harga_terakhir %}
+                                <span class="font-bold text-gray-900">{{ item.harga_terakhir|floatformat:"0" }}</span>
+                            {% else %}
+                                <span class="text-gray-400 font-normal italic text-xs">Menunggu data</span>
+                            {% endif %}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" class="py-12 text-center text-gray-400 font-medium">
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-gray-300">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" viewBox="0 0 640 512" fill="currentColor">
-                                        <path d="M73.4 83.1c-14.7-6.2-31.4-1.7-41.5 10.7C19.9 108.5 24 133.4 42.4 141l92.5 38.3L153 150l-29.3-8.8c-12-3.6-18.8-16.3-15.2-28.2s16.3-18.8 28.2-15.2L174.1 109l62.3-51.9c13.7-11.4 33.7-11.1 47 1l125.7 94.3 64-16c14.2-3.5 29 1 39 12l29 31.9c9.5 10.4 12.6 25 8.2 38.4l-11.7 35.1 43.1 17.8c18.5 7.6 22.5 32.5 10.5 47.1l-14.8 18c-7.3 8.9-18 13.9-29.6 13.9H512c-5.7 0-11.2-1.7-15.8-4.9l-72-50.4c-9-6.3-20.7-6.9-30.2-1.5L343.4 274.6c-13.8 7.8-30.8 8.4-45.1 1.7L181.7 221.7c-9.7-4.5-20.9-4.8-30.8-.9L37.7 263.2c-15.6 6.1-25.7 21.1-25.7 37.9V336c0 14.7 10.1 27.2 24.3 30.6l21.2 5.3 0 16.1c0 26.5 21.5 48 48 48H128c11 0 21.1-3.7 29.2-9.9l46.2 37c15.2 12.1 34.6 18.9 54.6 18.9s39.4-6.8 54.6-18.9l46.2-37c8.1 6.2 18.2 9.9 29.2 9.9h22.5c26.5 0 48-21.5 48-48V372l22.2-5.5c14.5-3.6 24.8-16.4 24.8-31.5V308.2c0-5-1.5-9.9-4.3-14.2l-21.2-32.9L362 135c-4.4-3.3-11-3.4-15.6-.4l-52.5 34.3c-4.4 2.9-9.8 4.1-15.1 3.5l-63.5-7.1L128.5 91.8c-15.5-12.9-38.3-13.6-55.1-8.7z"/>
-                                    </svg>
-                                </span>
-                                <span>Belum ada komoditas dalam kategori <strong>Komoditi Ekspor</strong>.</span>
-                                <span class="text-[11px] text-gray-400 max-w-md">Admin dapat menetapkannya lewat <strong>Dashboard → Kelola Harga → Edit</strong> pada komoditas yang dimaksud, lalu isi kolom <strong>Kategori</strong> dengan "Komoditi Ekspor".</span>
+                        <td colspan="5" class="py-16 text-center">
+                            <div class="flex flex-col items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
+                                <h3 class="text-sm font-semibold text-gray-600">Tidak ada data</h3>
+                                <p class="text-xs text-gray-400 mt-1">Kategori ekspor belum memiliki komoditi yang terdaftar.</p>
                             </div>
                         </td>
                     </tr>
@@ -95,6 +97,5 @@
             </table>
         </div>
     </div>
-
 </div>
 {% endblock %}
