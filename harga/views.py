@@ -14,6 +14,8 @@ from berita.models import Berita
 from komoditas.models import Komoditas
 from .models import HargaKomoditas
 
+KATEGORI_EKSPOR = "Komoditi Ekspor"
+
 
 def beranda(request):
     selected_pasar_id = request.GET.get("pasar_id", "")
@@ -192,14 +194,18 @@ def harga_komoditas(request):
             if user_pasar:
                 messages.error(request, "Hanya Admin Utama yang dapat menambah master komoditas.")
                 return redirect("harga_komoditas")
-            nama_komoditas_baru = request.POST.get("nama_komoditas_baru")
-            satuan_baru = request.POST.get("satuan_baru", "kg")
+            nama_komoditas_baru = request.POST.get("nama_komoditas")
+            satuan_baru = request.POST.get("satuan", "kg")
+            kategori_baru = (request.POST.get("kategori") or "").strip()
             harga_awal = request.POST.get("harga_awal", "")
 
             if nama_komoditas_baru:
                 kom_obj, created = Komoditas.objects.get_or_create(
                     nama=nama_komoditas_baru.strip(),
-                    defaults={"satuan": satuan_baru.strip()},
+                    defaults={
+                        "satuan": satuan_baru.strip(),
+                        "kategori": kategori_baru or None,
+                    },
                 )
 
                 if harga_awal:
@@ -314,10 +320,22 @@ def harga_komoditas(request):
         list_komoditas_dengan_harga.append({
             "id": kom.id,
             "nama": kom.nama,
+            "kategori": kom.kategori or "",
             "satuan": kom.satuan or "kg",
             "harga_existing": harga_existing_map.get(kom.id),
             "harga_terakhir": harga_terakhir_map.get(kom.id, 0),
         })
+
+    # Pilihan kategori: kategori yang sudah dipakai + kategori baru yang diminta
+    daftar_kategori = sorted(
+        set(
+            Komoditas.objects.exclude(kategori__isnull=True)
+            .exclude(kategori="")
+            .values_list("kategori", flat=True)
+        )
+    )
+    if KATEGORI_EKSPOR not in daftar_kategori:
+        daftar_kategori.insert(0, KATEGORI_EKSPOR)
 
     return render(
         request,
@@ -328,6 +346,7 @@ def harga_komoditas(request):
             "pasar_aktif": pasar_aktif,
             "tanggal_input": selected_tanggal,
             "today_date": timezone.now().date().strftime("%Y-%m-%d"),
+            "daftar_kategori": daftar_kategori,
         },
     )
 

@@ -9,15 +9,15 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {% for berita in berita_list %}
         <!-- KARTU BERITA BISA DIKLIK LANGSUNG KE URL SUMBER -->
-        <a href="{{ berita.url_sumber|default:'#' }}" {% if berita.url_sumber %}target="_blank" rel="noopener noreferrer"{% endif %} 
+        <a href="{{ berita.url_sumber|default:'#' }}" {% if berita.url_sumber %}target="_blank" rel="noopener noreferrer"{% endif %}
            class="group border border-gray-200 rounded-lg overflow-hidden flex flex-col justify-between bg-white hover:shadow-lg hover:border-emerald-500 transition duration-200">
             <div>
-                <!-- TAMPILAN GAMBAR DARI LINK URL -->
-                {% if berita.gambar_url %}
-                    <img src="{{ berita.gambar_url }}" 
-     alt="{{ berita.judul }}" 
+                <!-- TAMPILAN GAMBAR: prioritas gambar unggahan lokal, lalu URL sumber -->
+                {% if berita.display_gambar %}
+                    <img src="{{ berita.display_gambar }}"
+     alt="{{ berita.judul }}"
      loading="lazy"
-     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500';" 
+     onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1542838132-92c53300491e?w=500';"
      class="w-full h-48 object-cover group-hover:scale-105 transition duration-300">
                 {% else %}
                     <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400 text-xs font-medium">
