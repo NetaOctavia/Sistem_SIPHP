@@ -24,3 +24,4 @@ class PesanKontakForm(forms.ModelForm):
         if not pesan:
             raise forms.ValidationError("Pesan tidak boleh kosong!")
         return pesan
+

@@ -16,3 +16,4 @@ class KomoditasForm(forms.ModelForm):
     def clean_satuan(self):
         satuan = self.cleaned_data.get("satuan", "").strip()
         return satuan or "kg"
+

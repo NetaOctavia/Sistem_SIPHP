@@ -82,3 +82,4 @@ class AuthLoginLogoutTest(TestCase):
         profil = ProfilAdmin.objects.create(user=self.admin_user, pasar=pasar)
         self.assertIn("admintest", str(profil))
         self.assertIn("Pasar A", str(profil))
+

@@ -100,3 +100,4 @@ class BeritaViewTest(TestCase):
         if data["count"] > 0:
             self.assertIn("judul", data["data"][0])
             self.assertIn("gambar", data["data"][0])
+

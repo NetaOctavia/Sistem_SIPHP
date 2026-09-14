@@ -98,3 +98,4 @@ class KomoditasTrenTest(TestCase):
         self.assertEqual(data["status"], "success")
         names = [d["nama"] for d in data["data"]]
         self.assertIn("Beras Uji", names)
+

@@ -11,3 +11,4 @@ urlpatterns = [
     # Alias kompatibilitas
     path('kelola-berita/', views.kelola_berita),
 ]
+

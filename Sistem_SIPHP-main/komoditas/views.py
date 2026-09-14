@@ -236,3 +236,4 @@ def api_daftar_komoditas(request):
         for k in komoditas_qs
     ]
     return JsonResponse({"status": "success", "count": len(data), "data": data}, safe=False)
+

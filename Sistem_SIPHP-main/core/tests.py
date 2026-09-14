@@ -101,3 +101,4 @@ class KontakFormTest(TestCase):
         """Model PesanKontak harus menampilkan nama dan subjek."""
         pesan = PesanKontak.objects.first()
         self.assertIn("-", str(pesan))
+

@@ -420,3 +420,4 @@ def api_harga_komoditas(request):
         })
 
     return JsonResponse({"status": "success", "count": len(data), "data": data}, safe=False)
+

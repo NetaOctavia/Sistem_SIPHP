@@ -42,3 +42,4 @@ class Migration(migrations.Migration):
             unique_together={('komoditas', 'pasar', 'tanggal')},
         ),
     ]
+

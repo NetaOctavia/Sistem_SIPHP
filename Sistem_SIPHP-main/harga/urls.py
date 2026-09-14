@@ -11,3 +11,4 @@ urlpatterns = [
     # Alias kompatibilitas
     path('kelola-harga/', views.harga_komoditas),
 ]
+

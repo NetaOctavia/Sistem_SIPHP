@@ -135,3 +135,4 @@ class HargaKomoditasModelTest(TestCase):
                 komoditas=self.komoditas, pasar=self.pasar, tanggal=self.today
             ).exists()
         )
+

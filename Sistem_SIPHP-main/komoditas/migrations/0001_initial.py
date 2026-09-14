@@ -35,3 +35,4 @@ class Migration(migrations.Migration):
             database_operations=[],  # Jangan buat tabel — sudah ada dari accounts migration
         ),
     ]
+

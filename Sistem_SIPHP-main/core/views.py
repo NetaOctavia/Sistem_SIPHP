@@ -55,3 +55,4 @@ def hapus_kontak(request, id):
     pesan_obj.delete()
     messages.success(request, "Pesan kontak berhasil dihapus!")
     return redirect("kelola_kontak")
+

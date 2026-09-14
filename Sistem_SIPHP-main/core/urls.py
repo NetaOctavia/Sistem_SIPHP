@@ -10,3 +10,4 @@ urlpatterns = [
     # Alias kompatibilitas
     path('kelola-kontak/', views.kelola_kontak),
 ]
+

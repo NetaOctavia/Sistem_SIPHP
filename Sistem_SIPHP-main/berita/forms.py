@@ -12,3 +12,4 @@ class BeritaForm(forms.ModelForm):
         if url and not url.startswith(("http://", "https://")):
             url = "https://" + url
         return url
+
