@@ -14,6 +14,16 @@ def berita(request):
     )
 
 
+def berita_detail(request, id):
+    berita_obj = get_object_or_404(Berita, id=id)
+    berita_lain = Berita.objects.exclude(id=id).order_by("-created_at")[:4]
+    return render(
+        request,
+        "dashboard/berita_detail.html",
+        {"berita": berita_obj, "berita_lain": berita_lain},
+    )
+
+
 @staff_member_required(login_url='login')
 def kelola_berita(request):
     if request.method == "POST":

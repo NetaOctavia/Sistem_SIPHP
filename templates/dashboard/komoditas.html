@@ -5,14 +5,19 @@
 <div class="space-y-6">
 
     <!-- FORM FILTER PASAR & KOMODITAS -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
-        <h2 class="text-xl font-bold text-gray-900 mb-4">Pantau Grafik & Harga Komoditas</h2>
+    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+            <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M3 3a1 1 0 000 2v8a2 2 0 002 2h2.586l-1.293 1.293a1 1 0 101.414 1.414L10 15.414l2.293 2.293a1 1 0 001.414-1.414L12.414 15H15a2 2 0 002-2V5a1 1 0 100-2H3zm11.707 4.707a1 1 0 00-1.414-1.414L10 9.586 8.707 8.293a1 1 0 00-1.414 0l-2 2a1 1 0 101.414 1.414L8 10.414l1.293 1.293a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            Pantau Grafik & Harga Komoditas
+        </h2>
         
-        <form method="GET" action="{% url 'komoditas' %}" class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+        <form method="GET" action="{% url 'komoditas' %}" class="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
             <!-- Dropdown Pilihan Pasar -->
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Pasar</label>
-                <select name="pasar_id" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-3 font-medium">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Pilih Pasar</label>
+                <select name="pasar_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 p-2.5 font-medium shadow-sm transition-colors">
                     <option value="">-- Semua Pasar (Rata-rata) --</option>
                     {% for p in daftar_pasar %}
                         <option value="{{ p.id }}" {% if selected_pasar_id|add:"0" == p.id %}selected{% endif %}>
@@ -24,8 +29,8 @@
 
             <!-- Dropdown Pilihan Komoditas -->
             <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1">Pilih Komoditas</label>
-                <select name="komoditas_id" onchange="this.form.submit()" class="w-full bg-gray-50 border border-gray-300 text-gray-800 text-xs rounded-xl focus:ring-emerald-500 focus:border-emerald-500 p-3 font-medium">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Pilih Komoditas</label>
+                <select name="komoditas_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 p-2.5 font-medium shadow-sm transition-colors">
                     <option value="">-- Semua Komoditas --</option>
                     {% for item in daftar_komoditas_dropdown %}
                         <option value="{{ item.id }}" {% if selected_id|add:"0" == item.id %}selected{% endif %}>
@@ -38,50 +43,58 @@
     </div>
 
     <!-- CARD GRAFIK TREN HARGA -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 space-y-4">
-        <div class="flex justify-between items-center">
-            <h3 class="text-base font-bold text-gray-900">Perkembangan Harga 7 Hari Terakhir</h3>
-            <span class="text-xs text-emerald-600 font-semibold bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-                📈 Grafik Tren
+    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-4">
+        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
+            <h3 class="text-base font-semibold text-gray-800">Perkembangan Harga 7 Hari Terakhir</h3>
+            <span class="inline-flex items-center gap-1.5 text-xs text-blue-700 font-medium bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
+                </svg>
+                Grafik Tren
             </span>
         </div>
 
         <!-- CANVAS CHART -->
-        <div class="relative w-full h-80">
+        <div class="relative w-full h-80 pt-2">
             <canvas id="chartKomoditas"></canvas>
         </div>
     </div>
 
     <!-- TABEL TABULASI HARGA KOMODITAS PASAR -->
-    <div class="bg-white rounded-2xl border border-gray-200/80 shadow-sm overflow-hidden">
+    <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden">
         <!-- Table Header Info -->
-        <div class="p-5 bg-gradient-to-r from-emerald-50/50 to-white border-b border-gray-100 flex justify-between items-center">
+        <div class="px-6 py-4 bg-white border-b border-gray-200 flex flex-col sm:flex-row justify-between sm:items-center gap-3">
             <div>
-                <h3 class="text-base font-bold text-gray-900 flex items-center gap-2">
-                    📊 Daftar Harga Komoditas Pasar
+                <h3 class="text-base font-semibold text-gray-800 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                    Daftar Harga Komoditas Pasar
                 </h3>
-                <p class="text-xs text-gray-500 mt-0.5">Rincian pantauan harga kebutuhan pokok terkini di Kabupaten Subang.</p>
+                <p class="text-xs text-gray-500 mt-1">Rincian pantauan harga kebutuhan pokok terkini di Kabupaten Subang.</p>
             </div>
-            <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-100/70 px-3 py-1 rounded-full border border-emerald-200/50">
+            <span class="inline-flex items-center text-xs font-medium text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-100">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1.5"></span>
                 Update Realtime
             </span>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-gray-100/70 border-b border-gray-200 text-[11px] font-extrabold text-gray-500 uppercase tracking-wider">
-                        <th class="py-3.5 px-6 text-center w-16">NO</th>
-                        <th class="py-3.5 px-6">NAMA KOMODITAS</th>
-                        <th class="py-3.5 px-6 text-center w-32">SATUAN</th>
-                        <th class="py-3.5 px-6 text-right w-48">HARGA TERKINI</th>
+            <table class="min-w-full text-left border-collapse divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col" class="py-3 px-6 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-16">No</th>
+                        <th scope="col" class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Nama Komoditas</th>
+                        <th scope="col" class="py-3 px-6 text-xs font-semibold text-gray-500 uppercase tracking-wider">Kategori</th>
+                        <th scope="col" class="py-3 px-6 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider w-32">Satuan</th>
+                        <th scope="col" class="py-3 px-6 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider w-48">Harga Terkini</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-100 text-xs text-gray-700">
+                <tbody class="bg-white divide-y divide-gray-200 text-sm">
                     {% for item in daftar_komoditas %}
-                    <tr class="{% cycle 'bg-white' 'bg-slate-50/60' %} hover:bg-emerald-50/40 transition-colors duration-150">
+                    <tr class="hover:bg-gray-50 transition-colors">
                         <!-- Nomor -->
-                        <td class="py-3.5 px-6 text-center font-semibold text-gray-400">
+                        <td class="py-3.5 px-6 text-center text-gray-500">
                             {% if page_obj %}
                                 {{ page_obj.start_index|add:forloop.counter0 }}
                             {% else %}
@@ -90,27 +103,38 @@
                         </td>
                         
                         <!-- Nama Komoditas -->
-                        <td class="py-3.5 px-6 font-bold text-gray-800">
+                        <td class="py-3.5 px-6 font-medium text-gray-900">
                             {{ item.nama }}
+                        </td>
+
+                        <!-- Kategori -->
+                        <td class="py-3.5 px-6">
+                            {% if item.kategori %}
+                            <span class="inline-flex px-2.5 py-1 text-xs font-medium text-blue-700 bg-blue-50 border border-blue-100 rounded-md">
+                                {{ item.kategori }}
+                            </span>
+                            {% else %}
+                            <span class="text-gray-400 italic text-xs">Uncategorized</span>
+                            {% endif %}
                         </td>
                         
                         <!-- Satuan Badge -->
-                        <td class="py-3.5 px-6 text-center">
-                            <span class="inline-block px-2.5 py-0.5 text-[11px] font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-md">
-                                {{ item.satuan|default:"kg" }}
-                            </span>
+                        <td class="py-3.5 px-6 text-center text-gray-500">
+                            {{ item.satuan|default:"kg" }}
                         </td>
                         
                         <!-- Harga Terkini -->
-                        <td class="py-3.5 px-6 text-right font-extrabold text-emerald-600 text-sm">
+                        <td class="py-3.5 px-6 text-right font-semibold text-gray-900">
                             Rp {{ item.harga_terakhir|default:"0" }}
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" class="py-12 text-center text-gray-400 font-medium">
-                            <div class="flex flex-col items-center gap-2">
-                                <span class="text-2xl">📦</span>
+                        <td colspan="5" class="py-16 text-center text-gray-500">
+                            <div class="flex flex-col items-center justify-center gap-3">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                </svg>
                                 <span>Belum ada data komoditas yang tersedia.</span>
                             </div>
                         </td>
@@ -122,38 +146,44 @@
 
         <!-- Pagination Controls -->
         {% if page_obj and page_obj.has_other_pages %}
-        <div class="flex items-center justify-between border-t border-gray-100 px-4 py-3 sm:px-6 bg-white">
+        <div class="flex items-center justify-between border-t border-gray-200 px-6 py-3 bg-gray-50">
             <div class="flex flex-1 justify-between sm:hidden">
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">Sebelumnya</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-xs font-medium text-gray-700 hover:bg-gray-50">Selanjutnya</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</a>
                 {% endif %}
             </div>
             <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-xs text-gray-700">
-                        Menampilkan <span class="font-medium">{{ page_obj.start_index }}</span> - <span class="font-medium">{{ page_obj.end_index }}</span> dari <span class="font-medium">{{ page_obj.paginator.count }}</span> komoditas (Halaman {{ page_obj.number }}/{{ page_obj.paginator.num_pages }})
+                    <p class="text-sm text-gray-700">
+                        Menampilkan <span class="font-medium">{{ page_obj.start_index }}</span> - <span class="font-medium">{{ page_obj.end_index }}</span> dari <span class="font-medium">{{ page_obj.paginator.count }}</span> entri
                     </p>
                 </div>
                 <div>
                     <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                         {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 text-xs">
-                            &laquo; Prev
+                        <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
+                            <span class="sr-only">Previous</span>
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
+                            </svg>
                         </a>
                         {% endif %}
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
-                            <span class="relative z-10 inline-flex items-center bg-emerald-600 px-3 py-1.5 text-xs font-semibold text-white focus:z-20">{{ num }}</span>
+                            <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20">{{ num }}</span>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <a href="?page={{ num }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center px-3 py-1.5 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus:z-20">{{ num }}</a>
+                            <a href="?page={{ num }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus:z-20 transition-colors">{{ num }}</a>
                             {% endif %}
                         {% endfor %}
                         {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-2 py-1.5 text-gray-400 ring-1 ring-inset ring-gray-300 hover:bg-gray-50 text-xs">
-                            Next &raquo;
+                        <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
+                            <span class="sr-only">Next</span>
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
+                            </svg>
                         </a>
                         {% endif %}
                     </nav>

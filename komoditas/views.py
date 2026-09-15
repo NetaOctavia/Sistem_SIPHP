@@ -13,6 +13,47 @@ from accounts.models import Pasar
 from harga.models import HargaKomoditas
 from .models import Komoditas
 
+KATEGORI_EKSPOR = "Komoditi Ekspor"
+
+
+def komoditas_ekspor(request):
+    """Halaman publik daftar komoditi ekspor beserta harga terkininya."""
+    latest_dates = (
+        HargaKomoditas.objects.values("komoditas_id").annotate(max_date=Max("tanggal"))
+    )
+    latest_q = Q()
+    for item in latest_dates:
+        latest_q |= Q(komoditas_id=item["komoditas_id"], tanggal=item["max_date"])
+
+    harga_map = {}
+    if latest_q:
+        harga_agg = (
+            HargaKomoditas.objects.filter(latest_q)
+            .values("komoditas_id")
+            .annotate(avg_harga=Avg("harga"))
+        )
+        for row in harga_agg:
+            harga_map[row["komoditas_id"]] = int(row["avg_harga"])
+
+    daftar_ekspor = Komoditas.objects.filter(kategori=KATEGORI_EKSPOR).order_by("nama")
+    daftar_komoditas_ekspor = [
+        {
+            "id": kom.id,
+            "nama": kom.nama,
+            "kategori": kom.kategori,
+            "satuan": kom.satuan,
+            "keterangan": kom.keterangan or "",
+            "harga_terakhir": harga_map.get(kom.id),
+        }
+        for kom in daftar_ekspor
+    ]
+
+    context = {
+        "daftar_komoditas_ekspor": daftar_komoditas_ekspor,
+        "total_komoditas_ekspor": len(daftar_komoditas_ekspor),
+    }
+    return render(request, "dashboard/komoditas_ekspor.html", context)
+
 
 def komoditas(request):
     daftar_komoditas_qs = Komoditas.objects.all().order_by("nama")
@@ -85,6 +126,7 @@ def komoditas(request):
         daftar_komoditas_dengan_harga.append({
             "id": kom.id,
             "nama": kom.nama,
+            "kategori": kom.kategori or "",
             "satuan": kom.satuan,
             "harga_terakhir": f"{harga_terakhir_val:,}".replace(",", "."),
         })
@@ -129,12 +171,14 @@ def edit_komoditas(request, id):
     if request.method == "POST":
         nama = request.POST.get("nama")
         satuan = request.POST.get("satuan")
+        kategori = (request.POST.get("kategori") or "").strip()
         harga_input = request.POST.get("harga")
         pasar_id = request.POST.get("pasar_id")
 
         if nama and satuan:
             kom.nama = nama.strip()
             kom.satuan = satuan.strip()
+            kom.kategori = kategori or None
             kom.save()
 
             if harga_input:
@@ -185,6 +229,7 @@ def api_daftar_komoditas(request):
         {
             "id": k.id,
             "nama": k.nama,
+            "kategori": k.kategori or "",
             "satuan": k.satuan,
             "keterangan": k.keterangan or "",
         }
