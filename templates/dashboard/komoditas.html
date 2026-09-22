@@ -13,12 +13,14 @@
             Pantau Grafik & Harga Komoditas
         </h2>
         
-        <form method="GET" action="{% url 'komoditas' %}" class="grid grid-cols-1 md:grid-cols-2 gap-5 items-end">
+        <form method="GET" action="{% url 'komoditas' %}" id="filterKomoditasForm" class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-end">
+            <input type="hidden" name="kategori" value="{{ selected_kategori }}">
+
             <!-- Dropdown Pilihan Pasar -->
-            <div>
+            <div class="sm:col-span-4">
                 <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Pilih Pasar</label>
-                <select name="pasar_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 p-2.5 font-medium shadow-sm transition-colors">
-                    <option value="">-- Semua Pasar (Rata-rata) --</option>
+                <select name="pasar_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-2.5 font-medium shadow-sm transition-colors">
+                    <option value="">-- Semua Pasar (Perbandingan) --</option>
                     {% for p in daftar_pasar %}
                         <option value="{{ p.id }}" {% if selected_pasar_id|add:"0" == p.id %}selected{% endif %}>
                             {{ p.nama_pasar }}
@@ -28,10 +30,10 @@
             </div>
 
             <!-- Dropdown Pilihan Komoditas -->
-            <div>
-                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Pilih Komoditas</label>
-                <select name="komoditas_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 p-2.5 font-medium shadow-sm transition-colors">
-                    <option value="">-- Semua Komoditas --</option>
+            <div class="sm:col-span-5">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Pilih Komoditas (Kategori: {{ selected_kategori }})</label>
+                <select name="komoditas_id" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-2.5 font-medium shadow-sm transition-colors">
+                    <option value="">-- Semua Komoditas {{ selected_kategori }} --</option>
                     {% for item in daftar_komoditas_dropdown %}
                         <option value="{{ item.id }}" {% if selected_id|add:"0" == item.id %}selected{% endif %}>
                             {{ item.nama }} ({{ item.satuan|default:"kg" }})
@@ -39,23 +41,70 @@
                     {% endfor %}
                 </select>
             </div>
+
+            <!-- Dropdown Pilihan Periode -->
+            <div class="sm:col-span-3">
+                <label class="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Periode Waktu</label>
+                <select name="periode" onchange="this.form.submit()" class="w-full bg-white border border-gray-300 text-gray-800 text-sm rounded-lg focus:ring-emerald-500 focus:border-emerald-500 p-2.5 font-medium shadow-sm transition-colors">
+                    <option value="7" {% if selected_periode == '7' %}selected{% endif %}>📅 7 Hari Terakhir</option>
+                    <option value="14" {% if selected_periode == '14' %}selected{% endif %}>📅 14 Hari Terakhir</option>
+                    <option value="30" {% if selected_periode == '30' %}selected{% endif %}>📅 30 Hari Terakhir</option>
+                    <option value="bulan_ini" {% if selected_periode == 'bulan_ini' %}selected{% endif %}>📅 Bulan Ini</option>
+                </select>
+            </div>
         </form>
     </div>
 
+    <!-- TAB PILIHAN KATEGORI PANGAN (OPSI 1: TERORGANISASI & RAPI) -->
+    <div class="bg-white rounded-xl p-4 shadow-sm border border-gray-200">
+        <div class="flex items-center justify-between mb-3">
+            <h3 class="text-xs font-extrabold text-gray-700 uppercase tracking-wide flex items-center gap-1.5">
+                <span>🏷️</span>
+                <span>Kategori Komoditas Pangan</span>
+            </h3>
+            <span class="text-[11px] text-gray-400 font-medium">Klik kategori untuk memfilter grafik & data</span>
+        </div>
+        <div class="flex items-center gap-2 overflow-x-auto pb-1.5 scrollbar-thin">
+            {% for tab in daftar_tab_kategori %}
+            <a href="?kategori={{ tab.key|urlencode }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}"
+               class="px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border {% if selected_kategori == tab.key %}bg-[#046a53] text-white border-[#046a53] shadow-sm shadow-emerald-700/20{% else %}bg-gray-50 text-gray-700 border-gray-200/80 hover:bg-emerald-50 hover:text-[#046a53] hover:border-emerald-200{% endif %}">
+                <span class="text-sm">{{ tab.icon }}</span>
+                <span>{{ tab.label }}</span>
+                <span class="px-1.5 py-0.5 rounded-full text-[10px] font-extrabold {% if selected_kategori == tab.key %}bg-emerald-800 text-white{% else %}bg-gray-200/80 text-gray-600{% endif %}">
+                    {{ tab.count }}
+                </span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
     <!-- CARD GRAFIK TREN HARGA -->
-    <div class="bg-white rounded-lg p-6 shadow-sm border border-gray-200 space-y-4">
-        <div class="flex justify-between items-center border-b border-gray-100 pb-3">
-            <h3 class="text-base font-semibold text-gray-800">Perkembangan Harga 7 Hari Terakhir</h3>
-            <span class="inline-flex items-center gap-1.5 text-xs text-blue-700 font-medium bg-blue-50 px-2.5 py-1 rounded-md border border-blue-100">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M12 7a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0V8.414l-4.293 4.293a1 1 0 01-1.414 0L8 10.414l-4.293 4.293a1 1 0 01-1.414-1.414l5-5a1 1 0 011.414 0L11 10.586 14.586 7H12z" clip-rule="evenodd" />
-                </svg>
-                Grafik Tren
-            </span>
+    <div class="bg-white rounded-xl p-6 shadow-sm border border-gray-200 space-y-4">
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-3 border-b border-gray-100 pb-3">
+            <div class="flex items-center gap-2 flex-wrap">
+                <h3 class="text-base font-bold text-gray-800">
+                    Perkembangan Harga: <span class="text-[#046a53]">{{ selected_kategori }}</span> ({{ periode_label }})
+                </h3>
+                <span class="inline-flex items-center gap-1.5 text-xs text-emerald-700 font-bold bg-emerald-50 px-2.5 py-1 rounded-md border border-emerald-200">
+                    📈 Grafik Bersih
+                </span>
+            </div>
+
+            <!-- Quick Periode Selector -->
+            <div class="flex items-center gap-2">
+                <label class="text-xs text-gray-500 font-medium whitespace-nowrap">Rentang:</label>
+                <select onchange="document.querySelector('#filterKomoditasForm select[name=periode]').value = this.value; document.getElementById('filterKomoditasForm').submit();"
+                        class="text-xs font-semibold bg-gray-50 border border-gray-300 rounded-lg px-3 py-1.5 text-gray-700 focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <option value="7" {% if selected_periode == '7' %}selected{% endif %}>7 Hari Terakhir</option>
+                    <option value="14" {% if selected_periode == '14' %}selected{% endif %}>14 Hari Terakhir</option>
+                    <option value="30" {% if selected_periode == '30' %}selected{% endif %}>30 Hari Terakhir</option>
+                    <option value="bulan_ini" {% if selected_periode == 'bulan_ini' %}selected{% endif %}>Bulan Ini</option>
+                </select>
+            </div>
         </div>
 
         <!-- CANVAS CHART -->
-        <div class="relative w-full h-80 pt-2">
+        <div class="relative w-full h-84 pt-2">
             <canvas id="chartKomoditas"></canvas>
         </div>
     </div>
@@ -149,22 +198,22 @@
         <div class="flex items-center justify-between border-t border-gray-200 px-6 py-3 bg-gray-50">
             <div class="flex flex-1 justify-between sm:hidden">
                 {% if page_obj.has_previous %}
-                <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</a>
+                <a href="?page={{ page_obj.previous_page_number }}{% if selected_kategori %}&kategori={{ selected_kategori|urlencode }}{% endif %}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}" class="relative inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Sebelumnya</a>
                 {% endif %}
                 {% if page_obj.has_next %}
-                <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</a>
+                <a href="?page={{ page_obj.next_page_number }}{% if selected_kategori %}&kategori={{ selected_kategori|urlencode }}{% endif %}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}" class="relative ml-3 inline-flex items-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">Selanjutnya</a>
                 {% endif %}
             </div>
             <div class="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
                 <div>
-                    <p class="text-sm text-gray-700">
-                        Menampilkan <span class="font-medium">{{ page_obj.start_index }}</span> - <span class="font-medium">{{ page_obj.end_index }}</span> dari <span class="font-medium">{{ page_obj.paginator.count }}</span> entri
+                    <p class="text-xs text-gray-700">
+                        Menampilkan <span class="font-bold text-gray-900">{{ page_obj.start_index }}</span> - <span class="font-bold text-gray-900">{{ page_obj.end_index }}</span> dari <span class="font-bold text-gray-900">{{ page_obj.paginator.count }}</span> komoditas (Kategori: <span class="font-bold text-[#046a53]">{{ selected_kategori }}</span>)
                     </p>
                 </div>
                 <div>
                     <nav class="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
                         {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
+                        <a href="?page={{ page_obj.previous_page_number }}{% if selected_kategori %}&kategori={{ selected_kategori|urlencode }}{% endif %}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}" class="relative inline-flex items-center rounded-l-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
                             <span class="sr-only">Previous</span>
                             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 01-.02 1.06L8.832 10l3.938 3.71a.75.75 0 11-1.04 1.08l-4.5-4.25a.75.75 0 010-1.08l4.5-4.25a.75.75 0 011.06.02z" clip-rule="evenodd" />
@@ -173,13 +222,13 @@
                         {% endif %}
                         {% for num in page_obj.paginator.page_range %}
                             {% if page_obj.number == num %}
-                            <span class="relative z-10 inline-flex items-center bg-blue-600 px-4 py-2 text-sm font-semibold text-white focus:z-20">{{ num }}</span>
+                            <span class="relative z-10 inline-flex items-center bg-[#046a53] px-3.5 py-1.5 text-xs font-semibold text-white focus:z-20">{{ num }}</span>
                             {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                            <a href="?page={{ num }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center px-4 py-2 text-sm font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus:z-20 transition-colors">{{ num }}</a>
+                            <a href="?page={{ num }}{% if selected_kategori %}&kategori={{ selected_kategori|urlencode }}{% endif %}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}" class="relative inline-flex items-center px-3.5 py-1.5 text-xs font-semibold text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 focus:z-20 transition-colors">{{ num }}</a>
                             {% endif %}
                         {% endfor %}
                         {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
+                        <a href="?page={{ page_obj.next_page_number }}{% if selected_kategori %}&kategori={{ selected_kategori|urlencode }}{% endif %}{% if selected_pasar_id %}&pasar_id={{ selected_pasar_id }}{% endif %}{% if selected_id %}&komoditas_id={{ selected_id }}{% endif %}{% if selected_periode %}&periode={{ selected_periode }}{% endif %}" class="relative inline-flex items-center rounded-r-md px-3 py-2 text-gray-500 ring-1 ring-inset ring-gray-300 hover:bg-gray-100 transition-colors">
                             <span class="sr-only">Next</span>
                             <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                                 <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
@@ -204,6 +253,10 @@
         const labels = {{ chart_labels|safe }};
         const datasets = {{ chart_datasets|safe }};
 
+        const formatRupiah = (value) => {
+            return 'Rp ' + Number(value).toLocaleString('id-ID');
+        };
+
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -213,18 +266,65 @@
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                interaction: {
+                    mode: 'index',
+                    intersect: false,
+                },
                 plugins: {
                     legend: {
-                        display: false 
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            boxWidth: 12,
+                            usePointStyle: true,
+                            pointStyle: 'circle',
+                            padding: 15,
+                            font: {
+                                size: 11,
+                                weight: '600'
+                            }
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(17, 24, 39, 0.92)',
+                        titleFont: { size: 12, weight: 'bold' },
+                        bodyFont: { size: 11 },
+                        padding: 10,
+                        cornerRadius: 8,
+                        callbacks: {
+                            label: function(context) {
+                                let label = context.dataset.label || '';
+                                if (label) label += ': ';
+                                if (context.parsed.y !== null) {
+                                    label += formatRupiah(context.parsed.y);
+                                }
+                                return label;
+                            }
+                        }
                     }
                 },
                 scales: {
                     y: {
-                        beginAtZero: true,
+                        beginAtZero: false,
+                        grid: {
+                            color: 'rgba(243, 244, 246, 1)',
+                            drawBorder: false
+                        },
                         ticks: {
+                            font: { size: 10 },
                             callback: function(value) {
-                                return 'Rp ' + value.toLocaleString('id-ID');
+                                return formatRupiah(value);
                             }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: { size: 10 },
+                            maxRotation: 0,
+                            autoSkip: true
                         }
                     }
                 }

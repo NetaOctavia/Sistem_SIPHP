@@ -1,0 +1,168 @@
+{% extends 'admin_dashboard/base_admin.html' %}
+
+{% block title %}Kelola Admin & Pengguna - SIPHP Subang{% endblock %}
+{% block header_title %}Manajemen Admin & Pengguna Pasar{% endblock %}
+
+{% block content %}
+<div class="space-y-6 pt-2" x-data="{ modalTambah: false, modalReset: false, resetUserId: null, resetUsername: '' }">
+
+    <!-- HEADER & ACTION BAR -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <h1 class="text-xl font-extrabold text-gray-900">Kelola Akun Admin & Petugas Pasar</h1>
+            <p class="text-xs text-gray-500 mt-1">Daftar pengguna terdaftar yang memiliki akses mengelola data harga pangan dan konten sistem.</p>
+        </div>
+        <button type="button" @click="modalTambah = true"
+            class="px-4 py-2.5 bg-[#009661] hover:bg-[#008153] text-white text-xs font-bold rounded-xl shadow-md transition flex items-center gap-2">
+            <span>➕</span>
+            <span>Tambah Admin Baru</span>
+        </button>
+    </div>
+
+    <!-- TABEL AKUN ADMIN -->
+    <div class="bg-white rounded-2xl shadow-sm border border-gray-200/80 p-6 space-y-4">
+        <div class="overflow-x-auto rounded-xl border border-gray-200">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-gray-50 text-gray-700 uppercase font-bold border-b border-gray-200">
+                    <tr>
+                        <th class="px-4 py-3.5 w-12 text-center">No</th>
+                        <th class="px-4 py-3.5">Username</th>
+                        <th class="px-4 py-3.5">Email</th>
+                        <th class="px-4 py-3.5">Role / Peran</th>
+                        <th class="px-4 py-3.5">Pasar Penugasan</th>
+                        <th class="px-4 py-3.5 text-center">Aksi</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                    {% for u in daftar_users %}
+                    <tr class="hover:bg-gray-50/80 transition">
+                        <td class="px-4 py-3 text-center font-medium text-gray-500">{{ forloop.counter }}</td>
+                        <td class="px-4 py-3 font-bold text-gray-800 text-sm">
+                            <div class="flex items-center gap-2">
+                                <span>{{ u.username }}</span>
+                                {% if u.id == request.user.id %}
+                                    <span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-extrabold">Anda</span>
+                                {% endif %}
+                            </div>
+                        </td>
+                        <td class="px-4 py-3 text-gray-600">{{ u.email|default:"-" }}</td>
+                        <td class="px-4 py-3 whitespace-nowrap">
+                            {% if u.is_superuser %}
+                                <span class="px-2.5 py-1 rounded-full bg-amber-50 text-amber-800 font-bold text-[11px] border border-amber-200 flex items-center gap-1 w-max">
+                                    <span>⭐</span>
+                                    <span>Super Admin (Dinas)</span>
+                                </span>
+                            {% else %}
+                                <span class="px-2.5 py-1 rounded-full bg-sky-50 text-sky-800 font-bold text-[11px] border border-sky-200 flex items-center gap-1 w-max">
+                                    <span>🏪</span>
+                                    <span>Admin Pasar</span>
+                                </span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 font-semibold text-gray-700 whitespace-nowrap">
+                            {% if u.profil_admin and u.profil_admin.pasar %}
+                                {{ u.profil_admin.pasar.nama_pasar }}
+                            {% else %}
+                                <span class="text-gray-400 italic font-normal">Semua Pasar (Global)</span>
+                            {% endif %}
+                        </td>
+                        <td class="px-4 py-3 text-center whitespace-nowrap">
+                            <div class="flex items-center justify-center space-x-1.5">
+                                <button type="button" @click="resetUserId = '{{ u.id }}'; resetUsername = '{{ u.username|escapejs }}'; modalReset = true;"
+                                    class="px-2.5 py-1 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-lg border border-indigo-200 transition text-[11px] flex items-center gap-1">
+                                    <span>🔑</span>
+                                    <span>Reset Password</span>
+                                </button>
+                                {% if u.id != request.user.id %}
+                                <form method="POST" action="{% url 'hapus_user' u.id %}" onsubmit="return confirm('Yakin ingin menghapus akun {{ u.username }}?')" class="inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-lg border border-rose-200 transition text-[11px] flex items-center gap-1">
+                                        <span>🗑️</span>
+                                        <span>Hapus</span>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" class="px-4 py-8 text-center text-gray-400">Belum ada akun pengguna.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- MODAL TAMBAH ADMIN -->
+    <div x-show="modalTambah" x-cloak class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-gray-900">Tambah Akun Admin Baru</h3>
+                <button type="button" @click="modalTambah = false" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <form method="POST" action="{% url 'kelola_users' %}" class="space-y-4 text-xs" x-data="{ selectedRole: 'admin_pasar' }">
+                {% csrf_token %}
+                <input type="hidden" name="tambah_user" value="1">
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Username <span class="text-rose-500">*</span></label>
+                    <input type="text" name="username" required placeholder="Contoh: admin_pujasera" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Email</label>
+                    <input type="email" name="email" placeholder="email@subang.go.id" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Password <span class="text-rose-500">*</span></label>
+                    <input type="password" name="password" required minlength="6" placeholder="Minimal 6 karakter" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Role / Wewenang <span class="text-rose-500">*</span></label>
+                    <select name="role" x-model="selectedRole" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 font-semibold">
+                        <option value="admin_pasar">🏪 Admin Pasar (Terkunci ke 1 Pasar)</option>
+                        <option value="superadmin">⭐ Super Admin Dinas (Akses Penuh Seluruh Pasar)</option>
+                    </select>
+                </div>
+                <div x-show="selectedRole === 'admin_pasar'">
+                    <label class="block font-semibold text-gray-700 mb-1">Pasar Penugasan <span class="text-rose-500">*</span></label>
+                    <select name="pasar_id" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500 font-semibold text-gray-800">
+                        {% for p in daftar_pasar %}
+                        <option value="{{ p.id }}">{{ p.nama_pasar }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" @click="modalTambah = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-[#009661] hover:bg-[#008153] text-white font-bold rounded-lg shadow">Buat Akun</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL RESET PASSWORD USER -->
+    <div x-show="modalReset" x-cloak class="fixed inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center z-50 p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-gray-100 space-y-4">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="text-base font-bold text-gray-900">Reset Password User</h3>
+                <button type="button" @click="modalReset = false" class="text-gray-400 hover:text-gray-600 font-bold text-lg">&times;</button>
+            </div>
+            <form :action="'/dashboard/users/reset/' + resetUserId + '/'" method="POST" class="space-y-4 text-xs">
+                {% csrf_token %}
+                <div class="p-3 bg-amber-50 border border-amber-200 rounded-xl text-amber-900 font-medium">
+                    Anda sedang mereset password untuk akun: <strong x-text="resetUsername" class="text-amber-950"></strong>
+                </div>
+                <div>
+                    <label class="block font-semibold text-gray-700 mb-1">Password Baru <span class="text-rose-500">*</span></label>
+                    <input type="password" name="password_baru" required minlength="6" placeholder="Masukkan password baru" class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-emerald-500">
+                </div>
+                <div class="flex justify-end space-x-2 pt-3 border-t">
+                    <button type="button" @click="modalReset = false" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-lg">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow">Reset Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

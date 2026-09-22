@@ -7,6 +7,8 @@ urlpatterns = [
     path('dashboard/harga/', views.harga_komoditas, name='harga_komoditas'),
     path('dashboard/harga/hapus-pasar/<int:pasar_id>/', views.hapus_pasar, name='hapus_pasar'),
     path('dashboard/harga/export/', views.export_harga_csv, name='export_harga_csv'),
+    path('dashboard/harga/import/', views.import_harga_file, name='import_harga_file'),
+    path('dashboard/harga/template/<str:format_type>/', views.download_template_import, name='download_template_import'),
     path('api/harga/', views.api_harga_komoditas, name='api_harga_komoditas'),
     # Alias kompatibilitas
     path('kelola-harga/', views.harga_komoditas),

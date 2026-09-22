@@ -59,44 +59,198 @@ def komoditas(request):
     daftar_komoditas_qs = Komoditas.objects.all().order_by("nama")
     daftar_pasar = Pasar.objects.all().order_by("nama_pasar")
 
+    # Daftar Kategori dengan Icon & Label yang Rapi
+    CATEGORY_ICONS = {
+        "Beras & Padi": "🌾",
+        "Cabai & Bumbu": "🌶️",
+        "Peternakan & Daging": "🥩",
+        "Perikanan": "🐟",
+        "Sayuran": "🥬",
+        "Minyak & Lemak": "🛢️",
+        "Sembako & Olahan": "📦",
+        "Kacang-kacangan": "🥜",
+        "Umbi-umbian": "🥔",
+        "Buah-buahan": "🍎",
+        "Susu & Olahan": "🥛",
+        "Palawija & Pakan": "🌽",
+        "Komoditi Ekspor": "🚢",
+    }
+
+    # Ambil semua kategori yang ada di database
+    kategori_db = list(
+        Komoditas.objects.exclude(kategori__isnull=True)
+        .exclude(kategori="")
+        .values_list("kategori", flat=True)
+        .distinct()
+    )
+
+    # Susun daftar tab kategori terurut
+    kategori_priority = [
+        "Beras & Padi", "Cabai & Bumbu", "Peternakan & Daging",
+        "Perikanan", "Sayuran", "Minyak & Lemak", "Sembako & Olahan",
+        "Kacang-kacangan", "Buah-buahan"
+    ]
+    daftar_tab_kategori = []
+    for kat in kategori_priority:
+        if kat in kategori_db:
+            count = Komoditas.objects.filter(kategori=kat).count()
+            daftar_tab_kategori.append({
+                "key": kat,
+                "label": kat,
+                "icon": CATEGORY_ICONS.get(kat, "📦"),
+                "count": count,
+            })
+    # Kategori lain yang belum masuk
+    for kat in sorted(kategori_db):
+        if kat not in kategori_priority:
+            count = Komoditas.objects.filter(kategori=kat).count()
+            daftar_tab_kategori.append({
+                "key": kat,
+                "label": kat,
+                "icon": CATEGORY_ICONS.get(kat, "📦"),
+                "count": count,
+            })
+
+    # Parameter URL
+    selected_kategori = request.GET.get("kategori", "")
+    if not selected_kategori and daftar_tab_kategori:
+        selected_kategori = daftar_tab_kategori[0]["key"]  # Default ke 'Beras & Padi'
+
     selected_id = request.GET.get("komoditas_id", "")
     selected_pasar_id = request.GET.get("pasar_id", "")
+    selected_periode = request.GET.get("periode", "7")
 
     today = timezone.now().date()
-    start_date = today - timedelta(days=6)
-    dates_list = [(start_date + timedelta(days=i)) for i in range(7)]
+    
+    # Menentukan rentang tanggal berdasarkan filter periode
+    if selected_periode == "14":
+        start_date = today - timedelta(days=13)
+        periode_label = "14 Hari Terakhir"
+    elif selected_periode == "30":
+        start_date = today - timedelta(days=29)
+        periode_label = "30 Hari Terakhir"
+    elif selected_periode == "bulan_ini":
+        start_date = today.replace(day=1)
+        periode_label = f"Bulan Ini ({today.strftime('%B %Y')})"
+    else:
+        selected_periode = "7"
+        start_date = today - timedelta(days=6)
+        periode_label = "7 Hari Terakhir"
+
+    delta_days = (today - start_date).days + 1
+    dates_list = [(start_date + timedelta(days=i)) for i in range(delta_days)]
     dates_label = [d.strftime("%d %b") for d in dates_list]
 
-    komoditas_filtered = daftar_komoditas_qs
-    if selected_id:
-        komoditas_filtered = komoditas_filtered.filter(id=selected_id)
-
     colors = [
-        {"border": "#10B981", "bg": "rgba(16, 185, 129, 0.1)"},
-        {"border": "#EF4444", "bg": "rgba(239, 68, 68, 0.1)"},
-        {"border": "#3B82F6", "bg": "rgba(59, 130, 246, 0.1)"},
-        {"border": "#F59E0B", "bg": "rgba(245, 158, 11, 0.1)"},
-        {"border": "#8B5CF6", "bg": "rgba(139, 92, 246, 0.1)"},
+        {"border": "#10B981", "bg": "rgba(16, 185, 129, 0.08)"},
+        {"border": "#EF4444", "bg": "rgba(239, 68, 68, 0.08)"},
+        {"border": "#3B82F6", "bg": "rgba(59, 130, 246, 0.08)"},
+        {"border": "#F59E0B", "bg": "rgba(245, 158, 11, 0.08)"},
+        {"border": "#8B5CF6", "bg": "rgba(139, 92, 246, 0.08)"},
+        {"border": "#EC4899", "bg": "rgba(236, 72, 153, 0.08)"},
+        {"border": "#14B8A6", "bg": "rgba(20, 184, 166, 0.08)"},
+        {"border": "#6366F1", "bg": "rgba(99, 102, 241, 0.08)"},
     ]
 
     chart_datasets = []
-    daftar_komoditas_dengan_harga = []
 
-    # Batch fetch harga 7 hari terakhir (1 query)
-    chart_qs = HargaKomoditas.objects.filter(
-        tanggal__range=(start_date, today)
-    )
-    if selected_pasar_id:
-        chart_qs = chart_qs.filter(pasar_id=selected_pasar_id)
-    chart_agg = chart_qs.values(
-        "komoditas_id", "tanggal"
-    ).annotate(avg_harga=Avg("harga"))
-    chart_map = {
-        (item["komoditas_id"], item["tanggal"]): int(item["avg_harga"])
-        for item in chart_agg
-    }
+    # 1. Logika Pembuatan Datasets Grafik Berdasarkan Kategori / Komoditas
+    if selected_id:
+        # Jika komoditas spesifik dipilih
+        kom_terpilih = Komoditas.objects.filter(id=selected_id).first()
+        if kom_terpilih:
+            if selected_pasar_id:
+                # 1 Komoditas di 1 Pasar spesifik
+                pasar_obj = Pasar.objects.filter(id=selected_pasar_id).first()
+                p_label = pasar_obj.nama_pasar if pasar_obj else "Pasar"
+                h_qs = HargaKomoditas.objects.filter(
+                    komoditas=kom_terpilih,
+                    pasar_id=selected_pasar_id,
+                    tanggal__range=(start_date, today)
+                ).values("tanggal").annotate(avg_harga=Avg("harga"))
+                h_map = {item["tanggal"]: int(item["avg_harga"]) for item in h_qs}
+                
+                chart_datasets.append({
+                    "label": f"{kom_terpilih.nama} - {p_label}",
+                    "data": [h_map.get(d, 0) for d in dates_list],
+                    "borderColor": colors[0]["border"],
+                    "backgroundColor": colors[0]["bg"],
+                    "fill": True,
+                    "tension": 0.35,
+                    "pointRadius": 4,
+                    "pointHoverRadius": 6,
+                })
+            else:
+                # 1 Komoditas dibandingkan antar semua pasar
+                for idx, p in enumerate(daftar_pasar):
+                    h_qs = HargaKomoditas.objects.filter(
+                        komoditas=kom_terpilih,
+                        pasar=p,
+                        tanggal__range=(start_date, today)
+                    ).values("tanggal").annotate(avg_harga=Avg("harga"))
+                    h_map = {item["tanggal"]: int(item["avg_harga"]) for item in h_qs}
+                    series = [h_map.get(d, 0) for d in dates_list]
+                    
+                    col = colors[idx % len(colors)]
+                    chart_datasets.append({
+                        "label": f"{p.nama_pasar}",
+                        "data": series,
+                        "borderColor": col["border"],
+                        "backgroundColor": col["bg"],
+                        "fill": False,
+                        "tension": 0.35,
+                        "pointRadius": 4,
+                        "pointHoverRadius": 6,
+                    })
+    else:
+        # Menampilkan komoditas yang ada di dalam kategori terpilih (3 - 8 komoditas sekelompok)
+        komoditas_plot = Komoditas.objects.filter(kategori=selected_kategori).order_by("nama")
+        if not komoditas_plot.exists():
+            komoditas_plot = daftar_komoditas_qs[:6]
 
-    # Batch fetch harga terakhir per komoditas (2 query total)
+        chart_qs = HargaKomoditas.objects.filter(
+            komoditas__in=komoditas_plot,
+            tanggal__range=(start_date, today)
+        )
+        if selected_pasar_id:
+            chart_qs = chart_qs.filter(pasar_id=selected_pasar_id)
+            
+        chart_agg = chart_qs.values(
+            "komoditas_id", "tanggal"
+        ).annotate(avg_harga=Avg("harga"))
+        
+        chart_map = {
+            (item["komoditas_id"], item["tanggal"]): int(item["avg_harga"])
+            for item in chart_agg
+        }
+
+        for idx, kom in enumerate(komoditas_plot):
+            series = [chart_map.get((kom.id, d), 0) for d in dates_list]
+            col = colors[idx % len(colors)]
+            chart_datasets.append({
+                "label": kom.nama,
+                "data": series,
+                "borderColor": col["border"],
+                "backgroundColor": col["bg"],
+                "fill": False,
+                "tension": 0.35,
+                "pointRadius": 4,
+                "pointHoverRadius": 6,
+            })
+
+    # Filter komoditas dropdown sesuai kategori aktif
+    komoditas_dropdown = Komoditas.objects.filter(kategori=selected_kategori).order_by("nama")
+    if not komoditas_dropdown.exists():
+        komoditas_dropdown = daftar_komoditas_qs
+
+    # Filter komoditas untuk tabel tabulasi
+    komoditas_table_qs = daftar_komoditas_qs
+    if selected_kategori:
+        komoditas_table_qs = komoditas_table_qs.filter(kategori=selected_kategori)
+    if selected_id:
+        komoditas_table_qs = komoditas_table_qs.filter(id=selected_id)
+
+    # 2. Batch fetch harga terakhir per komoditas untuk tabel
     latest_dates_qs = HargaKomoditas.objects.all()
     if selected_pasar_id:
         latest_dates_qs = latest_dates_qs.filter(pasar_id=selected_pasar_id)
@@ -117,12 +271,9 @@ def komoditas(request):
         for item in lp_agg:
             latest_prices_map[item["komoditas_id"]] = int(item["avg_harga"])
 
-    for idx, kom in enumerate(komoditas_filtered):
-        data_harga_per_hari = [
-            chart_map.get((kom.id, d), 0) for d in dates_list
-        ]
+    daftar_komoditas_dengan_harga = []
+    for kom in komoditas_table_qs:
         harga_terakhir_val = latest_prices_map.get(kom.id, 0)
-
         daftar_komoditas_dengan_harga.append({
             "id": kom.id,
             "nama": kom.nama,
@@ -131,33 +282,22 @@ def komoditas(request):
             "harga_terakhir": f"{harga_terakhir_val:,}".replace(",", "."),
         })
 
-        color_scheme = colors[idx % len(colors)]
-        chart_datasets.append({
-            "label": kom.nama,
-            "data": data_harga_per_hari,
-            "borderColor": color_scheme["border"],
-            "backgroundColor": color_scheme["bg"],
-            "fill": True,
-            "tension": 0.3,
-        })
-
-    # Pagination: 10 items/page jika memilih Semua Komoditas
-    page_obj = None
-    if not selected_id:
-        paginator = Paginator(daftar_komoditas_dengan_harga, 10)
-        page_number = request.GET.get("page")
-        page_obj = paginator.get_page(page_number)
-        table_komoditas = page_obj
-    else:
-        table_komoditas = daftar_komoditas_dengan_harga
+    # Pagination: 10 items/page jika komoditas lebih dari 10
+    paginator = Paginator(daftar_komoditas_dengan_harga, 12)
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
     context = {
-        "daftar_komoditas_dropdown": daftar_komoditas_qs,
-        "daftar_komoditas": table_komoditas,
+        "daftar_tab_kategori": daftar_tab_kategori,
+        "selected_kategori": selected_kategori,
+        "daftar_komoditas_dropdown": komoditas_dropdown,
+        "daftar_komoditas": page_obj,
         "page_obj": page_obj,
         "daftar_pasar": daftar_pasar,
         "selected_id": selected_id,
         "selected_pasar_id": selected_pasar_id,
+        "selected_periode": selected_periode,
+        "periode_label": periode_label,
         "chart_labels": json.dumps(dates_label, cls=DjangoJSONEncoder),
         "chart_datasets": json.dumps(chart_datasets, cls=DjangoJSONEncoder),
     }

@@ -240,15 +240,22 @@
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
     <div class="lg:col-span-6 bg-white rounded-2xl border border-gray-200/80 p-5 shadow-sm space-y-3">
-        <div class="flex justify-between items-center">
-            <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide">Grafik Tren Harga 7 Hari Terakhir</h3>
-            <select aria-label="Rentang Waktu Grafik" class="text-xs border border-gray-200 rounded-lg px-2.5 py-1 text-gray-600 focus:outline-none focus:border-[#046a53] bg-white">
-                <option>7 Hari Terakhir</option>
-                <option>30 Hari Terakhir</option>
-            </select>
+        <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+            <h3 class="text-xs font-extrabold text-gray-900 uppercase tracking-wide">
+                Grafik Tren Harga {{ periode_label }}
+            </h3>
+            <form method="GET" action="" class="flex items-center gap-1.5">
+                {% if selected_pasar_id %}<input type="hidden" name="pasar_id" value="{{ selected_pasar_id }}">{% endif %}
+                <select name="periode" onchange="this.form.submit()" aria-label="Rentang Waktu Grafik" class="text-xs font-semibold border border-gray-200 rounded-lg px-2.5 py-1 text-gray-700 focus:outline-none focus:border-[#046a53] bg-gray-50">
+                    <option value="7" {% if selected_periode == '7' %}selected{% endif %}>7 Hari Terakhir</option>
+                    <option value="14" {% if selected_periode == '14' %}selected{% endif %}>14 Hari Terakhir</option>
+                    <option value="30" {% if selected_periode == '30' %}selected{% endif %}>30 Hari Terakhir</option>
+                    <option value="bulan_ini" {% if selected_periode == 'bulan_ini' %}selected{% endif %}>Bulan Ini</option>
+                </select>
+            </form>
         </div>
 
-        <div class="h-64 w-full pt-2">
+        <div class="h-68 w-full pt-2">
             <canvas id="hargaChart"></canvas>
         </div>
     </div>
@@ -546,7 +553,18 @@ document.addEventListener('DOMContentLoaded', function () {
             },
             plugins: {
                 legend: {
-                    display: false
+                    display: true,
+                    position: 'top',
+                    labels: {
+                        boxWidth: 10,
+                        usePointStyle: true,
+                        pointStyle: 'circle',
+                        padding: 10,
+                        font: {
+                            size: 10,
+                            weight: '600'
+                        }
+                    }
                 },
                 tooltip: {
                     backgroundColor: 'rgba(17, 24, 39, 0.9)',
